@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.bundee.backend.services.user-management-service</groupId>
+  <artifactId>user-management-service</artifactId>
+  <version>1.0.PRE-RELEASE</version>
+  <dependencies>
+    <dependency>
+      <groupId>com.bundee.msfw.svcmod</groupId>
+      <artifactId>service-module</artifactId>
+      <version>1.0.PRE-RELEASE</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.bundee.msfw.interfaces</groupId>
+      <artifactId>interfaces</artifactId>
+      <version>1.0.PRE-RELEASE</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20230618</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.azure</groupId>
+      <artifactId>azure-storage-blob</artifactId>
+      <version>12.13.0</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+</project>
