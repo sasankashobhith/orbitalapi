@@ -1,0 +1,81 @@
+{
+	"info": {
+		"_postman_id": "8d12b9af-1f43-4b53-8398-b96c9bc859a5",
+		"name": "BundeeTokenAPIs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "TokenLogin",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"authToken\": \"eyJhbGciOiJSUzI1NiIsImtpZCI6IjE5MGFkMTE4YTk0MGFkYzlmMmY1Mzc2YjM1MjkyZmVkZThjMmQwZWUiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiUmFrIiwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL2J1bmRlZS1kZXYiLCJhdWQiOiJidW5kZWUtZGV2IiwiYXV0aF90aW1lIjoxNjk0NzY1MjU0LCJ1c2VyX2lkIjoiaEV2ZDhkTU5mQk9kRWtlYkpITWwzdXNkU1JpMSIsInN1YiI6ImhFdmQ4ZE1OZkJPZEVrZWJKSE1sM3VzZFNSaTEiLCJpYXQiOjE2OTQ3NjUyNTQsImV4cCI6MTY5NDc2ODg1NCwiZW1haWwiOiJyYWtzaGl0aEBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsicmFrc2hpdGhAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.BuGP80DYLgXiJi8UTtwqklirxKYY_gjKKMItEQjAxCiqLSG1m99v6R9fCjGt0RnyqWjE7WGQwfEwaW5FJJnV1tKa-ebqoAGhCsfkqO1Oa_lCz1ncLVYxykegZbuNl-F7JPGZvarLIip0p97oiV5zraE26uwFq-HI4PMF_GDYUZGxGkVGYYd1jYlpzI1CuRHD1tTingM5wwoAUZVrTXQZRoIakH_wcKH0IW77N9rfj1r_JLQYCyRIwIsRIGdSBpKxOJGR0NGsx1k1xR-F-sXfowzyieiqa4_iYZiZxkh5i4LC9FrPkprflhCcGODDQpATQGZgd4lvuTI_NhnCHltUGQ\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9443/api/v1/user/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9443",
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UserPermissionTest",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "bundee_auth_token",
+						"value": "83e37bfcc0921973d643dd8545ce0cb6dec98224498d439e90b15cbf51b34831a335b29ffdf3ca2e77eab4843a442258",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9443/api/v1/user/permission/test",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9443",
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"permission",
+						"test"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

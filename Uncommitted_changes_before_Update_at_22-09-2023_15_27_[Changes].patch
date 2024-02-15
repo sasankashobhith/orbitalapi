@@ -1,0 +1,587 @@
+Subject: [PATCH] Uncommitted changes before Update at 22-09-2023 15:27 [Changes]
+---
+Index: services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/CustomerWishListModule.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/CustomerWishListModule.java b/services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/CustomerWishListModule.java
+--- a/services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/CustomerWishListModule.java	
++++ b/services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/CustomerWishListModule.java	
+@@ -16,155 +16,152 @@
+ import java.util.stream.*;
+ 
+ public class CustomerWishListModule implements BLModule {
+-	String baseurlBooking;
+-	String baseurlAvailability;
+-	String baseurlHost;
+-	String baseurlUser;
+-	RESTClient reservationclient;
++    String baseurlBooking;
++    String baseurlAvailability;
++    String baseurlHost;
++    String baseurlUser;
++//	RESTClient reservationclient;
+ 
+-	@Override
+-	public void init(BLogger logger, BLModServices blModServices) throws BExceptions {
+-		baseurlBooking = blModServices.getFileCfgHandler().getCfgParamStr("reservationclient.baseurlBooking");
+-		baseurlAvailability = blModServices.getFileCfgHandler().getCfgParamStr("reservationclient.baseurlAvailability");
+-		baseurlHost = blModServices.getFileCfgHandler().getCfgParamStr("reservationclient.baseurlHost");
+-		baseurlUser = blModServices.getFileCfgHandler().getCfgParamStr("reservationclient.baseurlUser");
+-		reservationclient = blModServices.getRESTClientFactory().getNewRESTClient(logger, "reservationclientid",
+-				"reservationclient", blModServices);
+-
+-	}
++    @Override
++    public void init(BLogger logger, BLModServices blModServices) throws BExceptions {
++        baseurlBooking = blModServices.getFileCfgHandler().getCfgParamStr("reservationclient.baseurlBooking");
++        baseurlAvailability = blModServices.getFileCfgHandler().getCfgParamStr("reservationclient.baseurlAvailability");
++        baseurlHost = blModServices.getFileCfgHandler().getCfgParamStr("reservationclient.baseurlHost");
++        baseurlUser = blModServices.getFileCfgHandler().getCfgParamStr("reservationclient.baseurlUser");
++//		reservationclient = blModServices.getRESTClientFactory().getNewRESTClient(logger, "reservationclientid",
++//				"reservationclient", blModServices);
++    }
+ 
+-	@BEndpoint(uri = HVDefs.Endpoints.INSERT_CUSTOMERWISHLIST, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = CustomerWishlistResponse.class)
+-	public BaseResponse createCustomerWishList(BLogger logger, BLModServices blModServices, RequestContext reqCtx,
+-			CustomerWishlistResponse resObject) throws BExceptions {
+-		CustomerWishlistResponse reservationCreateObj = CustomerWishListUtil
+-				.createSingleCustomerWishListResponse(resObject);
+-		VehiclesList bookResponse = new VehiclesList();
+-		try {
+-			bookResponse = CustomerWishListDAO.insertSingleCustomerWishList(logger, blModServices.getDBManager(),
+-					reservationCreateObj);
+-		} catch (DBException e) {
+-			e.printStackTrace();
+-		} catch (BExceptions e) {
+-			e.printStackTrace();
+-		}
+-		return bookResponse;
+-	}
++    @BEndpoint(uri = HVDefs.Endpoints.INSERT_CUSTOMERWISHLIST, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = CustomerWishlistResponse.class)
++    public BaseResponse createCustomerWishList(BLogger logger, BLModServices blModServices, RequestContext reqCtx,
++                                               CustomerWishlistResponse resObject) throws BExceptions {
++        CustomerWishlistResponse reservationCreateObj = CustomerWishListUtil
++                .createSingleCustomerWishListResponse(resObject);
++        VehiclesList bookResponse = new VehiclesList();
++        try {
++            bookResponse = CustomerWishListDAO.insertSingleCustomerWishList(logger, blModServices.getDBManager(),
++                    reservationCreateObj);
++        } catch (DBException e) {
++            e.printStackTrace();
++        } catch (BExceptions e) {
++            e.printStackTrace();
++        }
++        return bookResponse;
++    }
+ 
+-	@BEndpoint(uri = HVDefs.Endpoints.GET_ALL_CUSTOMERWISHLIST, httpMethod = UniversalConstants.GET, permission = "")
+-	public BaseResponse getAllCustomerWishList(BLogger logger, BLModServices blModServices, RequestContext reqCtx)
+-			throws BExceptions {
+-		VehiclesList vList = new VehiclesList();
+-		try {
+-			vList = CustomerWishListDAO.getAllCustomerWishList(logger, blModServices.getDBManager(), vList);
+-			return vList;
+-		} catch (DBException e) {
+-			vList.setErrorCode("1");
+-			vList.setErrorMessage("Error in CustomerActivity Request");
+-			return vList;
+-		}
+-	}
++    @BEndpoint(uri = HVDefs.Endpoints.GET_ALL_CUSTOMERWISHLIST, httpMethod = UniversalConstants.GET, permission = "")
++    public BaseResponse getAllCustomerWishList(BLogger logger, BLModServices blModServices, RequestContext reqCtx)
++            throws BExceptions {
++        VehiclesList vList = new VehiclesList();
++        try {
++            vList = CustomerWishListDAO.getAllCustomerWishList(logger, blModServices.getDBManager(), vList);
++            return vList;
++        } catch (DBException e) {
++            vList.setErrorCode("1");
++            vList.setErrorMessage("Error in CustomerActivity Request");
++            return vList;
++        }
++    }
+ 
+-	@BEndpoint(uri = HVDefs.Endpoints.GET_ALL_CUSTOMERWISHLIST_BYID, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = CustomerActivityRequest.class)
+-	public BaseResponse getAllCustomerWishListbyID(BLogger logger, BLModServices blModServices, RequestContext reqCtx,
+-			CustomerActivityRequest requestObject) throws BExceptions {
+-		VehiclesList vList = new VehiclesList();
+-		try {
+-			vList = CustomerWishListDAO.getCustomerWishListbyID(logger, blModServices.getDBManager(), requestObject,
+-					vList.getCustomerwishlist());
+-		} catch (DBException e) {
+-			VehiclesList bookResponse = new VehiclesList();
+-			bookResponse.setErrorCode("1");
+-			bookResponse.setErrorMessage("Error in Customer Request");
+-			return bookResponse;
+-		}
+-		return vList;
+-	}
++    @BEndpoint(uri = HVDefs.Endpoints.GET_ALL_CUSTOMERWISHLIST_BYID, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = CustomerActivityRequest.class)
++    public BaseResponse getAllCustomerWishListbyID(BLogger logger, BLModServices blModServices, RequestContext reqCtx,
++                                                   CustomerActivityRequest requestObject) throws BExceptions {
++        VehiclesList vList = new VehiclesList();
++        try {
++            vList = CustomerWishListDAO.getCustomerWishListbyID(logger, blModServices.getDBManager(), requestObject,
++                    vList.getCustomerwishlist());
++        } catch (DBException e) {
++            VehiclesList bookResponse = new VehiclesList();
++            bookResponse.setErrorCode("1");
++            bookResponse.setErrorMessage("Error in Customer Request");
++            return bookResponse;
++        }
++        return vList;
++    }
+ 
+-	@BEndpoint(uri = HVDefs.Endpoints.UPDATE_CUSTOMERWISHLIST, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = CustomerWishlistResponse.class)
+-	public BaseResponse updateCustomerWishList(BLogger logger, BLModServices blModServices, RequestContext reqCtx,
+-			CustomerWishlistResponse resObject) throws BExceptions {
+-		CustomerWishlistResponse reservationCreateObj = CustomerWishListUtil
+-				.createSingleCustomerWishListResponse(resObject);
+-		VehiclesList bookResponse = new VehiclesList();
+-		try {
+-			bookResponse = CustomerWishListDAO.updateCustomerWishList(logger, blModServices.getDBManager(),
+-					reservationCreateObj);
+-		} catch (Exception e) {
+-			bookResponse.setErrorCode("1");
+-			bookResponse.setErrorMessage("Error in Customer Request");
+-			return bookResponse;
+-		}
+-		return bookResponse;
+-	}
++    @BEndpoint(uri = HVDefs.Endpoints.UPDATE_CUSTOMERWISHLIST, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = CustomerWishlistResponse.class)
++    public BaseResponse updateCustomerWishList(BLogger logger, BLModServices blModServices, RequestContext reqCtx,
++                                               CustomerWishlistResponse resObject) throws BExceptions {
++        CustomerWishlistResponse reservationCreateObj = CustomerWishListUtil
++                .createSingleCustomerWishListResponse(resObject);
++        VehiclesList bookResponse = new VehiclesList();
++        try {
++            bookResponse = CustomerWishListDAO.updateCustomerWishList(logger, blModServices.getDBManager(),
++                    reservationCreateObj);
++        } catch (Exception e) {
++            bookResponse.setErrorCode("1");
++            bookResponse.setErrorMessage("Error in Customer Request");
++            return bookResponse;
++        }
++        return bookResponse;
++    }
+ 
+-	@BEndpoint(uri = HVDefs.Endpoints.SOFTUPDATE_CUSTOMERWISHLIST, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = CustomerWishlistResponse.class)
+-	public BaseResponse softUpdateCustomerWishList(BLogger logger, BLModServices blModServices, RequestContext reqCtx,
+-			CustomerWishlistResponse resObject) throws BExceptions {
+-		CustomerWishlistResponse reservationCreateObj = CustomerWishListUtil
+-				.createSingleCustomerWishListResponse(resObject);
+-		VehiclesList bookResponse = new VehiclesList();
+-		try {
+-			bookResponse = CustomerWishListDAO.softUpdateCustomerWishList(logger, blModServices.getDBManager(),
+-					reservationCreateObj);
+-		} catch (Exception e) {
+-			bookResponse.setErrorCode("1");
+-			bookResponse.setErrorMessage("Error in Customer Request");
+-			return bookResponse;
+-		}
+-		return bookResponse;
+-	}
++    @BEndpoint(uri = HVDefs.Endpoints.SOFTUPDATE_CUSTOMERWISHLIST, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = CustomerWishlistResponse.class)
++    public BaseResponse softUpdateCustomerWishList(BLogger logger, BLModServices blModServices, RequestContext reqCtx,
++                                                   CustomerWishlistResponse resObject) throws BExceptions {
++        CustomerWishlistResponse reservationCreateObj = CustomerWishListUtil
++                .createSingleCustomerWishListResponse(resObject);
++        VehiclesList bookResponse = new VehiclesList();
++        try {
++            bookResponse = CustomerWishListDAO.softUpdateCustomerWishList(logger, blModServices.getDBManager(),
++                    reservationCreateObj);
++        } catch (Exception e) {
++            bookResponse.setErrorCode("1");
++            bookResponse.setErrorMessage("Error in Customer Request");
++            return bookResponse;
++        }
++        return bookResponse;
++    }
+ 
+-	@BEndpoint(uri = HVDefs.Endpoints.GET_ALL_CUSTOMERWISHLIST_BY_USERID, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = CustomerActivityRequest.class)
+-	public BaseResponse getAllCustomerWishlistbyuserid(BLogger logger, BLModServices blModServices,
+-			RequestContext reqCtx, CustomerActivityRequest requestObject) throws BExceptions {
+-		VehiclesList bookResponse = new VehiclesList();
+-		try {
+-			VehiclesList vListWishList = CustomerWishListDAO.getCustomerWishlistandvehicle(logger,
+-					blModServices.getDBManager(), requestObject.getUserid());
+-			if (vListWishList.equals("1")) {
+-				vListWishList.setErrorCode("1");
+-				vListWishList.setErrorMessage("Data Not  Found");
+-				return vListWishList;
+-
+-			}
+-			List<Integer> vhostList = vListWishList.getCustomervehicleresponse().stream()
+-					.map(vehicle -> vehicle.getVhost()).collect(Collectors.toList());
+-			String commaSeparatedVhost = vhostList.stream().map(Object::toString).collect(Collectors.joining(","));
+-			VehiclesList hostDetails = CustomerWishListUtil.getHostDetails(commaSeparatedVhost, reservationclient,
+-					logger, baseurlUser);
+-			if (vListWishList.getErrorCode().equals("0")) {
+-				if (vListWishList.getCustomervehicleresponse().size() > 0) {
+-					List<Integer> getVehicleList = vListWishList.getCustomervehicleresponse().stream()
+-							.map(e -> e.getVehicleid()).distinct().collect(Collectors.toList());
+-					VehiclesList vListimage = MasterVehicleImageDAO.geAllMasterVehicle(logger,
+-							blModServices.getDBManager(), getVehicleList.toString().replace("[", "").replace("]", ""));
+-					for (int i = 0; i < vListWishList.getCustomervehicleresponse().size(); i++) {
+-						int vehicleId = vListWishList.getCustomervehicleresponse().get(i).getVehicleid();
+-						List<MasterVehicleImageResponse> vehicleImageData = vListimage.getImageresponse().stream()
+-								.filter(item -> item.getVehicleid() == vehicleId).collect(Collectors.toList());
+-						vListWishList.getCustomervehicleresponse().get(i).setImageresponse(vehicleImageData);
+-					}
+-				}
+-				if (vListWishList.getCustomervehicleresponse().size() > 0) {
+-					for (int j = 0; j < vListWishList.getCustomervehicleresponse().size(); j++) {
+-						int vhost = vListWishList.getCustomervehicleresponse().get(j).getVhost();
+-						List<UserResponse> str3 = hostDetails.getUserResponses().stream()
+-								.filter(item -> item.getIduser() == vhost).collect(Collectors.toList());
+-						if (str3.size() > 0) {
+-							vListWishList.getCustomervehicleresponse().get(j).setUserResponse(str3.get(0));
+-
+-						}
+-					}
+-				}
+-			}
+-			vListWishList.setErrorCode("0");
+-			vListWishList.setErrorMessage("Data Fetched Succesfully");
+-			return vListWishList;
+-		} catch (Exception ex) {
+-			bookResponse.setErrorCode("1");
+-			bookResponse.setErrorMessage("Error In CustomWishList");
+-			return bookResponse;
+-
+-		}
+-	}
++    @BEndpoint(uri = HVDefs.Endpoints.GET_ALL_CUSTOMERWISHLIST_BY_USERID, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = CustomerActivityRequest.class)
++    public BaseResponse getAllCustomerWishlistbyuserid(BLogger logger, BLModServices blModServices,
++                                                       RequestContext reqCtx, CustomerActivityRequest requestObject) throws BExceptions {
++        VehiclesList bookResponse = new VehiclesList();
++        try {
++            VehiclesList vListWishList = CustomerWishListDAO.getCustomerWishlistandvehicle(logger,
++                    blModServices.getDBManager(), requestObject.getUserid());
++            if (vListWishList.equals("1")) {
++                vListWishList.setErrorCode("1");
++                vListWishList.setErrorMessage("Data Not  Found");
++                return vListWishList;
++            }
++            List<Integer> vhostList = vListWishList.getCustomervehicleresponse().stream()
++                    .map(vehicle -> vehicle.getVhost()).collect(Collectors.toList());
++            RESTClient reservationclient = blModServices.getRESTClientFactory().getNewRESTClient(logger, "reservationclientid", "reservationclient", blModServices);
++            String commaSeparatedVhost = vhostList.stream().map(Object::toString).collect(Collectors.joining(","));
++            VehiclesList hostDetails = CustomerWishListUtil.getHostDetails(commaSeparatedVhost, reservationclient,
++                    logger, baseurlUser);
++            if (vListWishList.getErrorCode().equals("0")) {
++                if (vListWishList.getCustomervehicleresponse().size() > 0) {
++                    List<Integer> getVehicleList = vListWishList.getCustomervehicleresponse().stream()
++                            .map(e -> e.getVehicleid()).distinct().collect(Collectors.toList());
++                    VehiclesList vListimage = MasterVehicleImageDAO.geAllMasterVehicle(logger,
++                            blModServices.getDBManager(), getVehicleList.toString().replace("[", "").replace("]", ""));
++                    for (int i = 0; i < vListWishList.getCustomervehicleresponse().size(); i++) {
++                        int vehicleId = vListWishList.getCustomervehicleresponse().get(i).getVehicleid();
++                        List<MasterVehicleImageResponse> vehicleImageData = vListimage.getImageresponse().stream()
++                                .filter(item -> item.getVehicleid() == vehicleId).collect(Collectors.toList());
++                        vListWishList.getCustomervehicleresponse().get(i).setImageresponse(vehicleImageData);
++                    }
++                }
++                if (vListWishList.getCustomervehicleresponse().size() > 0) {
++                    for (int j = 0; j < vListWishList.getCustomervehicleresponse().size(); j++) {
++                        int vhost = vListWishList.getCustomervehicleresponse().get(j).getVhost();
++                        List<UserResponse> str3 = hostDetails.getUserResponses().stream()
++                                .filter(item -> item.getIduser() == vhost).collect(Collectors.toList());
++                        if (str3.size() > 0) {
++                            vListWishList.getCustomervehicleresponse().get(j).setUserResponse(str3.get(0));
++                        }
++                    }
++                }
++            }
++            vListWishList.setErrorCode("0");
++            vListWishList.setErrorMessage("Data Fetched Succesfully");
++            return vListWishList;
++        } catch (Exception ex) {
++            bookResponse.setErrorCode("1");
++            bookResponse.setErrorMessage("Error In CustomWishList");
++            return bookResponse;
++        }
++    }
+ }
+Index: services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/VehicleModule.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/VehicleModule.java b/services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/VehicleModule.java
+--- a/services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/VehicleModule.java	
++++ b/services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/VehicleModule.java	
+@@ -24,7 +24,6 @@
+     String baseurlAvailability;
+     String baseurlHost;
+     String baseurlUser;
+-    RESTClient reservationclient;
+ 
+     @Override
+     public void init(BLogger logger, BLModServices blModServices) throws BExceptions {
+@@ -32,7 +31,6 @@
+         baseurlAvailability = blModServices.getFileCfgHandler().getCfgParamStr("reservationclient.baseurlAvailability");
+         baseurlHost = blModServices.getFileCfgHandler().getCfgParamStr("reservationclient.baseurlHost");
+         baseurlUser = blModServices.getFileCfgHandler().getCfgParamStr("reservationclient.baseurlUser");
+-        reservationclient = blModServices.getRESTClientFactory().getNewRESTClient(logger, "reservationclientid", "reservationclient", blModServices);
+     }
+ 
+     @BEndpoint(uri = HVDefs.Endpoints.UPLOAD_VEHICLES, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = UploadedFile.class)
+@@ -135,6 +133,7 @@
+             if (vList.getErrorCode().equals("1")) {
+                 return vList;
+             } else {
++                RESTClient reservationclient = blModServices.getRESTClientFactory().getNewRESTClient(logger, "reservationclientid", "reservationclient", blModServices);
+                 Integer result = Util.getHostDetails(vehicles.get(0).getHostID(), hosts,reservationclient,logger,baseurlUser);
+                 if (result == 0) {
+                     vList.setErrorCode("1");
+Index: services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/CustomerActivityModule.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/CustomerActivityModule.java b/services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/CustomerActivityModule.java
+--- a/services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/CustomerActivityModule.java	
++++ b/services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/CustomerActivityModule.java	
+@@ -20,7 +20,7 @@
+     String baseurlAvailability;
+     String baseurlHost;
+     String baseurlUser;
+-    RESTClient reservationclient;
++//    RESTClient reservationclient;
+ 
+     @Override
+     public void init(BLogger logger, BLModServices blModServices) throws BExceptions {
+@@ -28,7 +28,7 @@
+         baseurlAvailability = blModServices.getFileCfgHandler().getCfgParamStr("reservationclient.baseurlAvailability");
+         baseurlHost = blModServices.getFileCfgHandler().getCfgParamStr("reservationclient.baseurlHost");
+         baseurlUser = blModServices.getFileCfgHandler().getCfgParamStr("reservationclient.baseurlUser");
+-        reservationclient = blModServices.getRESTClientFactory().getNewRESTClient(logger, "reservationclientid", "reservationclient", blModServices);
++//        reservationclient = blModServices.getRESTClientFactory().getNewRESTClient(logger, "reservationclientid", "reservationclient", blModServices);
+     }
+ 
+     @BEndpoint(uri = HVDefs.Endpoints.INSERT_CUTOMERACTIVITY, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = CustomerActivityResponse.class)
+@@ -87,6 +87,7 @@
+                     if (getVehicleList.size() > 0) {
+                         VehiclesList vehicleimage = MasterVehicleImageDAO.geAllMasterVehicle(logger, blModServices.getDBManager(), getVehicleList.toString().replace("[", "").replace("]", ""));
+                         VehiclesList vehicleDetails = CustomerActivityDAO.getVehicleDetail(logger, blModServices.getDBManager(), getVehicleList);
++                        RESTClient reservationclient = blModServices.getRESTClientFactory().getNewRESTClient(logger, "reservationclientid", "reservationclient", blModServices);
+                         VehiclesList reviewDetails = CutomerActiveUtil.getVehicleDetails(getVehicleList.stream().map(Object::toString).collect(Collectors.joining(", ")), reservationclient, logger, baseurlBooking);
+                         for (int i = 0; i < vList.getCustomeractivityresponse().size(); i++) {
+                             int vehicleId = vList.getCustomeractivityresponse().get(i).getVehicleid();
+Index: services/booking-service/src/main/java/com/bundee/booking/db/PushNotification.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/booking-service/src/main/java/com/bundee/booking/db/PushNotification.java b/services/booking-service/src/main/java/com/bundee/booking/db/PushNotification.java
+new file mode 100644
+--- /dev/null	
++++ b/services/booking-service/src/main/java/com/bundee/booking/db/PushNotification.java	
+@@ -0,0 +1,185 @@
++package com.bundee.booking.db;
++
++import com.bundee.booking.utils.*;
++import com.google.auth.oauth2.*;
++import com.google.firebase.*;
++import com.google.firebase.messaging.*;
++import com.stripe.*;
++import com.stripe.exception.*;
++import com.stripe.model.*;
++import com.stripe.param.*;
++import org.springframework.core.io.*;
++
++import java.io.*;
++import java.util.*;
++
++public class PushNotification {
++    public static void main(String[] args) throws IOException, FirebaseMessagingException {
++        // Set your Stripe API secret key
++        capture();
++//        System.out.println(PushNotificationUtility.pushNotification());
++    }
++
++    public static void retrieve() {
++        Stripe.apiKey = "sk_test_51Nic7WAHBUVqiOLM0zBGZhg5a4WWv00khdfA8x3enWPLDks3nPKUAvyKytuoPiigqUeh50F5vitIF8ukouSGK2r500Pz7UpAjp"; // Replace with your Secret Key
++        try {
++            // Replace "pi_YourPaymentIntentId" with the actual Payment Intent ID you want to retrieve
++            PaymentIntent paymentIntent = PaymentIntent.retrieve("pi_3NsoEKAHBUVqiOLM1A94WiKa");
++            System.out.println("Payment Intent : " + paymentIntent);
++            System.out.println("Payment Intent ID: " + paymentIntent.getId());
++            System.out.println("Payment Intent Status: " + paymentIntent.getStatus());
++            // Add more attributes as needed
++        } catch (StripeException e) {
++            e.printStackTrace();
++        }
++    }
++
++    public static void create() {
++        // Set your Stripe API secret key
++        Stripe.apiKey = "sk_test_51Nic7WAHBUVqiOLM0zBGZhg5a4WWv00khdfA8x3enWPLDks3nPKUAvyKytuoPiigqUeh50F5vitIF8ukouSGK2r500Pz7UpAjp"; // Replace with your Secret Key
++        try {
++            PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
++                    .setAmount(100000L) // Amount in cents (e.g., $10.00)
++                    .setCurrency("INR")
++                    .build();
++            PaymentIntent paymentIntent = PaymentIntent.create(params);
++            System.out.println("Payment Intent ID: " + paymentIntent.getId());
++            System.out.println("Payment Intent Status: " + paymentIntent.getStatus());
++            // Add more attributes as needed
++        } catch (StripeException e) {
++            e.printStackTrace();
++        }
++    }
++
++    public static void confirm() {
++        // Set your Stripe API secret key
++        Stripe.apiKey = "sk_test_51Nic7WAHBUVqiOLM0zBGZhg5a4WWv00khdfA8x3enWPLDks3nPKUAvyKytuoPiigqUeh50F5vitIF8ukouSGK2r500Pz7UpAjp"; // Replace with your Secret Key
++        try {
++            // Replace "pi_YourPaymentIntentId" with the actual Payment Intent ID you want to confirm
++            PaymentIntent paymentIntent = PaymentIntent.retrieve("pi_3NrypsAHBUVqiOLM0tcjHkCR");
++            PaymentIntentConfirmParams confirmParams = PaymentIntentConfirmParams.builder()
++                    .setPaymentMethod("pm_card_visa") // Specify the payment method here
++                    .setUseStripeSdk(true)
++                    .build();
++            PaymentIntent confirmedPaymentIntent = paymentIntent.confirm(confirmParams);
++            System.out.println("Payment Intent: " + confirmedPaymentIntent);
++            System.out.println("Payment Intent ID: " + confirmedPaymentIntent.getId());
++            System.out.println("Payment Intent Status: " + confirmedPaymentIntent.getStatus());
++            // Add more attributes as needed
++        } catch (StripeException e) {
++            e.printStackTrace();
++        }
++    }
++
++    public static void capture() {
++        // Set your Stripe API secret key
++        Stripe.apiKey = "sk_test_51Nic7WAHBUVqiOLM0zBGZhg5a4WWv00khdfA8x3enWPLDks3nPKUAvyKytuoPiigqUeh50F5vitIF8ukouSGK2r500Pz7UpAjp"; // Replace with your Secret Key
++        try {
++            // Replace "pi_YourPaymentIntentId" with the actual Payment Intent ID you want to capture
++            PaymentIntent paymentIntent = PaymentIntent.retrieve("pi_3NsoEKAHBUVqiOLM1A94WiKa");
++            PaymentIntentCaptureParams params = PaymentIntentCaptureParams.builder().build();
++            PaymentIntent capturedPaymentIntent = paymentIntent.capture(params);
++            System.out.println("Payment Intent ID: " + capturedPaymentIntent.getId());
++            System.out.println("Payment Intent Status: " + capturedPaymentIntent.getStatus());
++            // Add more attributes as needed
++        } catch (StripeException e) {
++            e.printStackTrace();
++        }
++    }
++
++    public static void increment() {
++        // Set your Stripe API secret key
++        Stripe.apiKey = "sk_test_51Nic7WAHBUVqiOLM0zBGZhg5a4WWv00khdfA8x3enWPLDks3nPKUAvyKytuoPiigqUeh50F5vitIF8ukouSGK2r500Pz7UpAjp"; // Replace with your Secret Key
++        try {
++            // Replace "pi_YourPaymentIntentId" with the actual Payment Intent ID you want to increment
++            PaymentIntent paymentIntent = PaymentIntent.retrieve("pi_3NsoEKAHBUVqiOLM1A94WiKa");
++            Map<String, Object> params = new HashMap<>();
++            params.put("amount", 2000); // Increment by 20.00 USD in cents (e.g., $20.00)
++            PaymentIntentUpdateParams updateParams = PaymentIntentUpdateParams.builder()
++                    .setAmount(2067L) // Amount to increase by in cents
++                    .build();
++            PaymentIntent incrementedPaymentIntent = paymentIntent.update(updateParams);
++            System.out.println("Payment Intent ID: " + incrementedPaymentIntent.getId());
++            System.out.println("Payment Intent Status: " + incrementedPaymentIntent.getStatus());
++            System.out.println("Authorized Amount: " + incrementedPaymentIntent.getAmount());
++            // Add more attributes as needed
++        } catch (StripeException e) {
++            e.printStackTrace();
++        }
++    }
++
++    public static void listAll() {
++        // Set your Stripe API secret key
++        Stripe.apiKey = "sk_test_51Nic7WAHBUVqiOLM0zBGZhg5a4WWv00khdfA8x3enWPLDks3nPKUAvyKytuoPiigqUeh50F5vitIF8ukouSGK2r500Pz7UpAjp"; // Replace with your Secret Key
++        try {
++            // Create a map to set optional parameters for the listing request (if needed)
++            Map<String, Object> params = new HashMap<>();
++            params.put("limit", 10); // Limit the number of Payment Intents to retrieve (optional)
++            PaymentIntentCollection paymentIntents = PaymentIntent.list(params);
++            // Iterate through the list of Payment Intents and access their attributes
++            for (PaymentIntent paymentIntent : paymentIntents.getData()) {
++                System.out.println("Payment Intent ID: " + paymentIntent.getId());
++                System.out.println("Payment Intent Status: " + paymentIntent.getStatus());
++                System.out.println("Authorized Amount: " + paymentIntent.getAmount());
++                // Add more attributes as needed
++            }
++        } catch (StripeException e) {
++            e.printStackTrace();
++        }
++    }
++
++    public static String pushNotification() throws IOException, FirebaseMessagingException {
++        try {
++//            initializeFirebaseApp();
++            FileInputStream serviceAccount =
++                    new FileInputStream("C:\\Bundee_MVP_Backend-dev_initial_commit\\services\\booking-service\\src\\main\\resources\\bundee-firebase-adminsdk-azin7-1bf187ef9d.json");
++
++            FirebaseOptions options = new FirebaseOptions.Builder()
++                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
++                    .build();
++
++            FirebaseApp.initializeApp(options);
++//            GoogleCredentials googleCredentials = GoogleCredentials
++//                    .fromStream(new ClassPathResource("bundee-firebase-adminsdk-azin7-bceecf33ad.json").getInputStream());
++//            FirebaseOptions firebaseOptions = FirebaseOptions
++//                    .builder()
++//                    .setCredentials(googleCredentials)
++//                    .build();
++            HashMap note = new HashMap();
++            note.put("msg1", "Notification1");
++//            FirebaseApp app = FirebaseApp.initializeApp(firebaseOptions,"bundee");
++            FirebaseMessaging firebaseMessaging = FirebaseMessaging.getInstance();
++            Notification notification = Notification
++                    .builder()
++                    .setTitle("New Notification")
++                    .setBody("test1")
++                    .build();
++            Message message = Message
++                    .builder()
++                    .setToken("evrpVJ3GTkiztFGEG8wL1u:APA91bEsbRiStZuPuk5c76eABOjLi1SYzkblpP9KFm873aABgcaW7yU_GLLITOAkPb5DwsfuMvGkvMwZFCsQz1l2QLurD0eUlMITkTU54wwkWqV7iMrBNhFdj4K29M0x-q-8kcBg0KnX")
++                    .setNotification(notification)
++                    .putAllData(note)
++                    .build();
++// Send a message to the device corresponding to the provided
++// registration token.
++//            String response = FirebaseMessaging.getInstance().send(message);
++            return firebaseMessaging.send(message);
++        } catch (Exception e) {
++            throw e;
++        }
++    }
++
++    public static void initializeFirebaseApp() {
++        try {
++            FileInputStream serviceAccount = new FileInputStream("bundee-firebase-adminsdk-azin7-bceecf33ad.json");
++            FirebaseOptions options = new FirebaseOptions.Builder()
++                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
++                    .build();
++            FirebaseApp.initializeApp(options);
++        } catch (Exception e) {
++            e.printStackTrace();
++        }
++    }
++}
++
++
+Index: framework/servicefw/src/main/java/com/bundee/msfw/servicefw/srvutils/restclient/RESTClientImpl.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/framework/servicefw/src/main/java/com/bundee/msfw/servicefw/srvutils/restclient/RESTClientImpl.java b/framework/servicefw/src/main/java/com/bundee/msfw/servicefw/srvutils/restclient/RESTClientImpl.java
+--- a/framework/servicefw/src/main/java/com/bundee/msfw/servicefw/srvutils/restclient/RESTClientImpl.java	
++++ b/framework/servicefw/src/main/java/com/bundee/msfw/servicefw/srvutils/restclient/RESTClientImpl.java	
+@@ -93,8 +93,8 @@
+                 configPfx + "." + CommonFileCfgDefs.GEN_SSL_CFG_PARAMS.TCP_TIMEOUT_SECS.getValue()));
+         if (tcpTimeoutSecs == 0)
+             tcpTimeoutSecs = 1;
+-        RequestConfig config = RequestConfig.custom().setConnectTimeout(tcpTimeoutSecs * 120000)
+-                .setConnectionRequestTimeout(tcpTimeoutSecs *  120000).setSocketTimeout(tcpTimeoutSecs * 1000).build();
++        RequestConfig config = RequestConfig.custom().setConnectTimeout(tcpTimeoutSecs * 190000)
++                .setConnectionRequestTimeout(tcpTimeoutSecs *  190000).setSocketTimeout(tcpTimeoutSecs * 190000).build();
+         HttpClientBuilder hcBuilder = HttpClients.custom().setDefaultRequestConfig(config);
+         String enableSSLStr = CommonFileCfgDefs.checkAndGetParam(configPfx,
+                 CommonFileCfgDefs.GEN_SSL_CFG_PARAMS.SSL_ENABLED.getValue(), fch);

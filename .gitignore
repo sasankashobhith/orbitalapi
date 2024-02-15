@@ -1,0 +1,30 @@
+ -1.14-windows.xml
+        .azure/
+        .cache/
+        .docker/
+        .gitconfig
+        .popsql.json
+        .redhat/
+        .vscode/
+        3D Objects/
+        AppData/
+        Contacts/
+        Desktop/
+        Downloads/
+        Dropbox/
+        Favorites/
+        Links/
+        Music/
+        NTUSER.DAT
+        NTUSER.DAT{d5dbd6e3-4ac3-11ed-a573-8b6f2ed32d75}.TM.blf
+        NTUSER.DAT{d5dbd6e3-4ac3-11ed-a573-8b6f2ed32d75}.TMContainer00000000000000000001.regtrans-ms
+        NTUSER.DAT{d5dbd6e3-4ac3-11ed-a573-8b6f2ed32d75}.TMContainer00000000000000000002.regtrans-ms
+        OneDrive/
+        Pictures/
+        Saved Games/
+        Searches/
+        Tracing/
+        Videos/
+        ntuser.dat.LOG1
+        ntuser.dat.LOG2
+        ntuser.ini

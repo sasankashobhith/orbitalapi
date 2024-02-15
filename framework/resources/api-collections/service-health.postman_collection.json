@@ -1,0 +1,43 @@
+{
+	"info": {
+		"_postman_id": "2264193c-d267-4340-ba8d-7c4a75846938",
+		"name": "framework-blmods-test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GetServiceHealthDetails",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "appId",
+						"value": "GIMT",
+						"type": "text"
+					},
+					{
+						"key": "SM_USER",
+						"value": "invgimt",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:9443/api/v1/service/details/health",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9443",
+					"path": [
+						"api",
+						"v1",
+						"service",
+						"details",
+						"health"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

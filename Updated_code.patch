@@ -1,0 +1,335 @@
+Subject: [PATCH] Updated code
+---
+Index: services/host-vehicle-service/src/main/java/com/bundee/hvs/pojo/VehiclesList.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/host-vehicle-service/src/main/java/com/bundee/hvs/pojo/VehiclesList.java b/services/host-vehicle-service/src/main/java/com/bundee/hvs/pojo/VehiclesList.java
+--- a/services/host-vehicle-service/src/main/java/com/bundee/hvs/pojo/VehiclesList.java	(revision 82a287cfcbec2688dd015d5e159c0acb97723c1c)
++++ b/services/host-vehicle-service/src/main/java/com/bundee/hvs/pojo/VehiclesList.java	(date 1695378453825)
+@@ -20,23 +20,8 @@
+     List<MasterVehicleImageResponse> imageresponse;
+     List<MasterVehiclePriceResponse> vehiclePriceresponse;
+     List<CustomerVehicleResponse> customervehicleresponse;
+-    List<UserResponse>userResponses;
+-
+-    public List<BranchResponse> getBranchresponse() {
+-        return branchresponse;
+-    }
+-
+-    public void setBranchresponse(List<BranchResponse> branchresponse) {
+-        this.branchresponse = branchresponse;
+-    }
+-
+-    public List<UserResponse> getUserResponses() {
+-        return userResponses;
+-    }
+-
+-    public void setUserResponses(List<UserResponse> userResponses) {
+-        this.userResponses = userResponses;
+-    }
++    List<UserResponse> userResponses;
++    UserResponse userResponse;
+ 
+     public VehiclesList() {
+         vehicles = new ArrayList<Vehicle>();
+@@ -52,9 +37,33 @@
+         vinzipcoderesponse = new ArrayList<VinzipcodeResponse>();
+         customervehicleresponse = new ArrayList<CustomerVehicleResponse>();
+         reserverList = new ArrayList<Reservation>();
+-        userResponses=new ArrayList<UserResponse>();
++        userResponses = new ArrayList<UserResponse>();
+     }
+ 
++    public UserResponse getUserResponse() {
++        return userResponse;
++    }
++
++    public void setUserResponse(UserResponse userResponse) {
++        this.userResponse = userResponse;
++    }
++
++    public List<BranchResponse> getBranchresponse() {
++        return branchresponse;
++    }
++
++    public void setBranchresponse(List<BranchResponse> branchresponse) {
++        this.branchresponse = branchresponse;
++    }
++
++    public List<UserResponse> getUserResponses() {
++        return userResponses;
++    }
++
++    public void setUserResponses(List<UserResponse> userResponses) {
++        this.userResponses = userResponses;
++    }
++
+     public List<Reservation> getReserverList() {
+         return reserverList;
+     }
+Index: services/host-vehicle-service/src/main/java/com/bundee/hvs/utils/Util.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/host-vehicle-service/src/main/java/com/bundee/hvs/utils/Util.java b/services/host-vehicle-service/src/main/java/com/bundee/hvs/utils/Util.java
+--- a/services/host-vehicle-service/src/main/java/com/bundee/hvs/utils/Util.java	(revision 82a287cfcbec2688dd015d5e159c0acb97723c1c)
++++ b/services/host-vehicle-service/src/main/java/com/bundee/hvs/utils/Util.java	(date 1695379204701)
+@@ -55,24 +55,19 @@
+ 
+ 
+ 
+-    public static Integer getHostDetails(int userId, List<UserResponse> userResponse, RESTClient restclient, BLogger logger, String baseurlUser) {
+-        UserList res = new UserList();
++    public static VehiclesList getHostDetails(int userId, RESTClient restclient, BLogger logger, String baseurlUser) {
++        VehiclesList res = new VehiclesList();
+         try {
+             JSONObject jsonObject = new JSONObject();
+             jsonObject.put("iduser", userId);
+             String url = baseurlUser +HostVehicleRestURIs.Endpoints.GET_USER_BY_ID;
+             ResponseCapsule responsecapsule = restclient.sendReceiveJSONData(logger, "POST", url, null, jsonObject, VehiclesList.class, null);
+-            res = (UserList) responsecapsule.getResponseObject();
+-            if (Objects.equals(res.getErrorCode(), "0")) {
+-                userResponse.add(res.getUserResponse());
+-                return 1;
+-            } else {
+-                return 0;
+-            }
++            res = (VehiclesList) responsecapsule.getResponseObject();
++            return res;
+         } catch (Exception | BExceptions e) {
+             res.setErrorCode("1");
+             res.setErrorMessage("Error in User  Request");
+-            return 0;
++            return res;
+         }
+     }
+ 
+Index: services/booking-service/src/main/java/com/bundee/booking/utils/StripePaymentUtil.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/booking-service/src/main/java/com/bundee/booking/utils/StripePaymentUtil.java b/services/booking-service/src/main/java/com/bundee/booking/utils/StripePaymentUtil.java
+new file mode 100644
+--- /dev/null	(date 1695379398660)
++++ b/services/booking-service/src/main/java/com/bundee/booking/utils/StripePaymentUtil.java	(date 1695379398660)
+@@ -0,0 +1,183 @@
++package com.bundee.booking.utils;
++
++import com.google.auth.oauth2.*;
++import com.google.firebase.*;
++import com.google.firebase.messaging.*;
++import com.stripe.*;
++import com.stripe.exception.*;
++import com.stripe.model.*;
++import com.stripe.param.*;
++
++import java.io.*;
++import java.util.*;
++
++public class StripePaymentUtil {
++    public static void main(String[] args) throws IOException, FirebaseMessagingException {
++        // Set your Stripe API secret key
++        retrieve();
++//        System.out.println(PushNotificationUtility.pushNotification());
++    }
++
++    public static void retrieve() {
++        Stripe.apiKey = "sk_test_51Nic7WAHBUVqiOLM0zBGZhg5a4WWv00khdfA8x3enWPLDks3nPKUAvyKytuoPiigqUeh50F5vitIF8ukouSGK2r500Pz7UpAjp"; // Replace with your Secret Key
++        try {
++            // Replace "pi_YourPaymentIntentId" with the actual Payment Intent ID you want to retrieve
++            PaymentIntent paymentIntent = PaymentIntent.retrieve("pi_3NsoEKAHBUVqiOLM1A94WiKa");
++            System.out.println("Payment Intent : " + paymentIntent);
++            System.out.println("Payment Intent ID: " + paymentIntent.getId());
++            System.out.println("Payment Intent Status: " + paymentIntent.getStatus());
++            // Add more attributes as needed
++        } catch (StripeException e) {
++            e.printStackTrace();
++        }
++    }
++
++    public static void create() {
++        // Set your Stripe API secret key
++        Stripe.apiKey = "sk_test_51Nic7WAHBUVqiOLM0zBGZhg5a4WWv00khdfA8x3enWPLDks3nPKUAvyKytuoPiigqUeh50F5vitIF8ukouSGK2r500Pz7UpAjp"; // Replace with your Secret Key
++        try {
++            PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
++                    .setAmount(100000L) // Amount in cents (e.g., $10.00)
++                    .setCurrency("INR")
++                    .build();
++            PaymentIntent paymentIntent = PaymentIntent.create(params);
++            System.out.println("Payment Intent ID: " + paymentIntent.getId());
++            System.out.println("Payment Intent Status: " + paymentIntent.getStatus());
++            // Add more attributes as needed
++        } catch (StripeException e) {
++            e.printStackTrace();
++        }
++    }
++
++    public static void confirm() {
++        // Set your Stripe API secret key
++        Stripe.apiKey = "sk_test_51Nic7WAHBUVqiOLM0zBGZhg5a4WWv00khdfA8x3enWPLDks3nPKUAvyKytuoPiigqUeh50F5vitIF8ukouSGK2r500Pz7UpAjp"; // Replace with your Secret Key
++        try {
++            // Replace "pi_YourPaymentIntentId" with the actual Payment Intent ID you want to confirm
++            PaymentIntent paymentIntent = PaymentIntent.retrieve("pi_3NrypsAHBUVqiOLM0tcjHkCR");
++            PaymentIntentConfirmParams confirmParams = PaymentIntentConfirmParams.builder()
++                    .setPaymentMethod("pm_card_visa") // Specify the payment method here
++                    .setUseStripeSdk(true)
++                    .build();
++            PaymentIntent confirmedPaymentIntent = paymentIntent.confirm(confirmParams);
++            System.out.println("Payment Intent: " + confirmedPaymentIntent);
++            System.out.println("Payment Intent ID: " + confirmedPaymentIntent.getId());
++            System.out.println("Payment Intent Status: " + confirmedPaymentIntent.getStatus());
++            // Add more attributes as needed
++        } catch (StripeException e) {
++            e.printStackTrace();
++        }
++    }
++
++    public static void capture() {
++        // Set your Stripe API secret key
++        Stripe.apiKey = "sk_test_51Nic7WAHBUVqiOLM0zBGZhg5a4WWv00khdfA8x3enWPLDks3nPKUAvyKytuoPiigqUeh50F5vitIF8ukouSGK2r500Pz7UpAjp"; // Replace with your Secret Key
++        try {
++            // Replace "pi_YourPaymentIntentId" with the actual Payment Intent ID you want to capture
++            PaymentIntent paymentIntent = PaymentIntent.retrieve("pi_3NsoEKAHBUVqiOLM1A94WiKa");
++            PaymentIntentCaptureParams params = PaymentIntentCaptureParams.builder().build();
++            PaymentIntent capturedPaymentIntent = paymentIntent.capture(params);
++            System.out.println("Payment Intent ID: " + capturedPaymentIntent.getId());
++            System.out.println("Payment Intent Status: " + capturedPaymentIntent.getStatus());
++            // Add more attributes as needed
++        } catch (StripeException e) {
++            e.printStackTrace();
++        }
++    }
++
++    public static void increment() {
++        // Set your Stripe API secret key
++        Stripe.apiKey = "sk_test_51Nic7WAHBUVqiOLM0zBGZhg5a4WWv00khdfA8x3enWPLDks3nPKUAvyKytuoPiigqUeh50F5vitIF8ukouSGK2r500Pz7UpAjp"; // Replace with your Secret Key
++        try {
++            // Replace "pi_YourPaymentIntentId" with the actual Payment Intent ID you want to increment
++            PaymentIntent paymentIntent = PaymentIntent.retrieve("pi_3NsoEKAHBUVqiOLM1A94WiKa");
++            Map<String, Object> params = new HashMap<>();
++            params.put("amount", 2000); // Increment by 20.00 USD in cents (e.g., $20.00)
++            PaymentIntentUpdateParams updateParams = PaymentIntentUpdateParams.builder()
++                    .setAmount(2067L) // Amount to increase by in cents
++                    .build();
++            PaymentIntent incrementedPaymentIntent = paymentIntent.update(updateParams);
++            System.out.println("Payment Intent ID: " + incrementedPaymentIntent.getId());
++            System.out.println("Payment Intent Status: " + incrementedPaymentIntent.getStatus());
++            System.out.println("Authorized Amount: " + incrementedPaymentIntent.getAmount());
++            // Add more attributes as needed
++        } catch (StripeException e) {
++            e.printStackTrace();
++        }
++    }
++
++    public static void listAll() {
++        // Set your Stripe API secret key
++        Stripe.apiKey = "sk_test_51Nic7WAHBUVqiOLM0zBGZhg5a4WWv00khdfA8x3enWPLDks3nPKUAvyKytuoPiigqUeh50F5vitIF8ukouSGK2r500Pz7UpAjp"; // Replace with your Secret Key
++        try {
++            // Create a map to set optional parameters for the listing request (if needed)
++            Map<String, Object> params = new HashMap<>();
++            params.put("limit", 10); // Limit the number of Payment Intents to retrieve (optional)
++            PaymentIntentCollection paymentIntents = PaymentIntent.list(params);
++            // Iterate through the list of Payment Intents and access their attributes
++            for (PaymentIntent paymentIntent : paymentIntents.getData()) {
++                System.out.println("Payment Intent ID: " + paymentIntent.getId());
++                System.out.println("Payment Intent Status: " + paymentIntent.getStatus());
++                System.out.println("Authorized Amount: " + paymentIntent.getAmount());
++                // Add more attributes as needed
++            }
++        } catch (StripeException e) {
++            e.printStackTrace();
++        }
++    }
++
++    public static String pushNotification() throws IOException, FirebaseMessagingException {
++        try {
++//            initializeFirebaseApp();
++            FileInputStream serviceAccount =
++                    new FileInputStream("C:\\Bundee_MVP_Backend-dev_initial_commit\\services\\booking-service\\src\\main\\resources\\bundee-firebase-adminsdk-azin7-1bf187ef9d.json");
++
++            FirebaseOptions options = new FirebaseOptions.Builder()
++                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
++                    .build();
++
++            FirebaseApp.initializeApp(options);
++//            GoogleCredentials googleCredentials = GoogleCredentials
++//                    .fromStream(new ClassPathResource("bundee-firebase-adminsdk-azin7-bceecf33ad.json").getInputStream());
++//            FirebaseOptions firebaseOptions = FirebaseOptions
++//                    .builder()
++//                    .setCredentials(googleCredentials)
++//                    .build();
++            HashMap note = new HashMap();
++            note.put("msg1", "Notification1");
++//            FirebaseApp app = FirebaseApp.initializeApp(firebaseOptions,"bundee");
++            FirebaseMessaging firebaseMessaging = FirebaseMessaging.getInstance();
++            Notification notification = Notification
++                    .builder()
++                    .setTitle("New Notification")
++                    .setBody("test1")
++                    .build();
++            Message message = Message
++                    .builder()
++                    .setToken("evrpVJ3GTkiztFGEG8wL1u:APA91bEsbRiStZuPuk5c76eABOjLi1SYzkblpP9KFm873aABgcaW7yU_GLLITOAkPb5DwsfuMvGkvMwZFCsQz1l2QLurD0eUlMITkTU54wwkWqV7iMrBNhFdj4K29M0x-q-8kcBg0KnX")
++                    .setNotification(notification)
++                    .putAllData(note)
++                    .build();
++// Send a message to the device corresponding to the provided
++// registration token.
++//            String response = FirebaseMessaging.getInstance().send(message);
++            return firebaseMessaging.send(message);
++        } catch (Exception e) {
++            throw e;
++        }
++    }
++
++    public static void initializeFirebaseApp() {
++        try {
++            FileInputStream serviceAccount = new FileInputStream("bundee-firebase-adminsdk-azin7-bceecf33ad.json");
++            FirebaseOptions options = new FirebaseOptions.Builder()
++                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
++                    .build();
++            FirebaseApp.initializeApp(options);
++        } catch (Exception e) {
++            e.printStackTrace();
++        }
++    }
++}
++
++
+Index: services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/VehicleModule.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/VehicleModule.java b/services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/VehicleModule.java
+--- a/services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/VehicleModule.java	(revision 82a287cfcbec2688dd015d5e159c0acb97723c1c)
++++ b/services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/VehicleModule.java	(date 1695379204705)
+@@ -130,20 +130,17 @@
+             vList.setErrorMessage("Error in catch block" + e.getMessage().toString());
+             return vList;
+         }
+-        List<UserResponse> hosts = new ArrayList<UserResponse>();
+         try {
+             if (vList.getErrorCode().equals("1")) {
+                 return vList;
+             } else {
+-                Integer result = Util.getHostDetails(vehicles.get(0).getHostID(), hosts,reservationclient,logger,baseurlUser);
+-                if (result == 0) {
+-                    vList.setErrorCode("1");
+-                    vList.setErrorMessage("Error in retriving Host Data");
+-                    return vList;
++                VehiclesList result = Util.getHostDetails(vehicles.get(0).getHostID(),reservationclient,logger,baseurlUser);
++                if (result.getErrorCode().equals("1")) {
++                    return result;
+                 } else {
+                     vList.setErrorCode("0");
+                     vList.setErrorMessage("Data Retreived Successfully...");
+-                    vList.getVehicleHostDetails().add(new VehicleHostDetail(vehicles.get(0), hosts.get(0)));
++                    vList.getVehicleHostDetails().add(new VehicleHostDetail(vehicles.get(0), result.getUserResponse()));
+                     vList.setVehicles(null);
+                     return vList;
+                 }

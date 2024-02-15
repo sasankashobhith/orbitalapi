@@ -1,0 +1,74 @@
+{
+	"info": {
+		"_postman_id": "6c20bb58-2657-4903-9901-eeba61d2becf",
+		"name": "BundeeTest",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "TestDB",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"replication\": 1,\r\n    \"tasks\": [\r\n        {\r\n            \"sleepms\": 100,\r\n            \"sel_loop\": 1,\r\n            \"upd_loop\": 1,\r\n            \"selectqs\": [\r\n                \"select * from test_user\"\r\n            ],\r\n            \"updateqs\": [\r\n                \"insert into test_user (name) values ('anand manvi')\"\r\n            ]\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:6443/api/v1/test/db",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "6443",
+					"path": [
+						"api",
+						"v1",
+						"test",
+						"db"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SelfTest",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"replication\": 1,\r\n    \"tasks\": [\r\n        {\r\n            \"sleepms\": 100,\r\n            \"sel_loop\": 1,\r\n            \"upd_loop\": 1,\r\n            \"selectqs\": [\r\n                \"select * from test_user\"\r\n            ],\r\n            \"updateqs\": [\r\n                \"insert into test_user (name) values ('anand manvi')\"\r\n            ]\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:6443/api/v1/test/self",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "6443",
+					"path": [
+						"api",
+						"v1",
+						"test",
+						"self"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,15 @@
+Pagination Implementation Notes:
+
+1. Define a class that implements PageHandler interface. Say the name of the class is MyPageHandler.
+2. In the BLModule @BEndpoint annotation add field pageHandlerClass=MyPageHandler.class.
+3. In the BLModule method make sure to take MyPageHandler as a method parameter.
+4. Make sure BLModule method returns null.
+5. API implementing pagination must support 2 queries:
+	Get all IDs for the requested data.
+	Get data for a list of IDs.
+6. In the BLModule method make sure to run appropriate query and set data IDs (List<Long>) in MyPageHandler.
+7. For an API request the method PageHandler.getFullDataIDs is called first time. 
+   For every subsequent page PageHandler.getDataFromIDs is called.
+8. With every pagination response an HTTP Response Header "bundee-api-pg-token" is set. Client must send this in HTTP Request Headers.
+9. VehicleModule.listVehicles has sample implementation.
+10. There's a SQL script that creates pagination table, that MUST be run. framework\dbscripts\bundee_pagination_ddl.sql

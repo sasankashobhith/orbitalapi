@@ -1,0 +1,95 @@
+{
+	"info": {
+		"_postman_id": "6ca3be79-53a8-4392-8baa-1ea43af23788",
+		"name": "user-management-postman-collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26065314",
+		"_collection_link": "https://cloudy-crescent-810169.postman.co/workspace/new_fleet_management~7d408f55-42bf-4fb5-9606-ddb822289e3f/collection/26065314-6ca3be79-53a8-4392-8baa-1ea43af23788?action=share&creator=26065314&source=collection_link"
+	},
+	"item": [
+		{
+			"name": "http://localhost:7443/api/v1/user/createuser",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "appId",
+						"value": "GIMT",
+						"type": "text"
+					},
+					{
+						"key": "SM_USER",
+						"value": "invgimt",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"mybundee@gmail.com\",\r\n    \"firstname\": \"My\",\r\n    \"lastname\": \"Bundee\",\r\n    \"password\": \"Bundee@123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7443/api/v1/user/createuser",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7443",
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"createuser"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:7443/api/v1/user/checklogin",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "appId",
+						"value": "GIMT",
+						"type": "text"
+					},
+					{
+						"key": "SM_USER",
+						"value": "invgimt",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"mybundee@gmail.com\",\r\n    \"password\": \"Bundee@123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7443/api/v1/user/checklogin",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7443",
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"checklogin"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

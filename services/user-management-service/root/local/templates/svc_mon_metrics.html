@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Service Monitoring Metrics</title>
+</head>
+<body>
+	<img src=##IMG_PATH_email-header.png## height="80" width="700"/>
+	<h1>Service Monitoring Metrics - HOST_NAME : APP_NAME</h1>
+
+	<p><p><p>
+	<h3>Metrics from time: FROM_TIME</h3>
+	<h3>Metrics to time: TO_TIME</h3>
+	<p><p><p>
+	
+    <table style="width:700px;border:1px solid black;border-collapse:collapse;">
+        <tr>
+            <th style="font-family:'Segoe UI'; font-size:10px;border:1px solid black;">Service Name</th>
+            <th style="font-family:'Segoe UI'; font-size:10px;border:1px solid black;">Failure Rate (failures/attempts)</th>
+            <th style="font-family:'Segoe UI'; font-size:10px;border:1px solid black;">Failed Messages</th>
+        </tr>
+			##DYNAMIC_TABLE_ROWS_START_svcmon<td style="font-family:'Segoe UI'; font-size:10px;border:1px solid black;text-align:center;">FIELD_VALUE</td>DYNAMIC_TABLE_ROWS_END_svcmon##
+    </table>
+    <br>
+    <br>
+    <table style="width:700px;border-collapse:collapse;">
+        <tr>
+            <td style="font-family:'Segoe UI'; font-size:8px;">
+            </td>
+        </tr>
+    </table>
+	<img src=##IMG_PATH_email-footer.jpg## height="80" width="700"/>
+    <p style="font-family:'Segoe UI';font-size:12px;width:700px;color:Navy;" align="left">
+        &#169; SYSTEM_YEAR. All rights reserved. All trademarks acknowledged.
+    </p>
+</body>
+</html>

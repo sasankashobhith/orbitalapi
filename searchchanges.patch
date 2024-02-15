@@ -1,0 +1,2114 @@
+Subject: [PATCH] searchchanges
+---
+Index: services/booking-service/src/main/java/com/bundee/booking/db/TripReviewDAO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/booking-service/src/main/java/com/bundee/booking/db/TripReviewDAO.java b/services/booking-service/src/main/java/com/bundee/booking/db/TripReviewDAO.java
+--- a/services/booking-service/src/main/java/com/bundee/booking/db/TripReviewDAO.java	(revision 8f51ee853ab04f5bd4a1aaa4363f66d5ba98f171)
++++ b/services/booking-service/src/main/java/com/bundee/booking/db/TripReviewDAO.java	(date 1694601541199)
+@@ -1,46 +1,36 @@
+ package com.bundee.booking.db;
+ 
+-import com.bundee.booking.pojo.BookingResponse;
+-import com.bundee.booking.pojo.Reservationrequest;
+-import com.bundee.booking.pojo.TripReview;
+-import com.bundee.msfw.interfaces.dbi.DBException;
+-import com.bundee.msfw.interfaces.dbi.DBManager;
+-import com.bundee.msfw.interfaces.dbi.DBQuery;
+-import com.bundee.msfw.interfaces.dbi.DBQueryBuilder;
+-import com.bundee.msfw.interfaces.logi.BLogger;
++import com.bundee.booking.pojo.*;
++import com.bundee.msfw.interfaces.dbi.*;
++import com.bundee.msfw.interfaces.logi.*;
+ 
+-import java.sql.ResultSet;
+-import java.sql.SQLException;
+-import java.util.ArrayList;
++import java.sql.*;
+ import java.util.Date;
+-import java.util.List;
++import java.util.*;
+ 
+ public class TripReviewDAO {
+ 
+     private static final String GET_ALL_TRIP_REVIEW = "select * from  tripreviews where isactive=true";
+     private static final String ADD_TRIP_REVIEW = "insert into tripreviews (reservationid,vehicleid,userid,comments,rating,isactive,tripid) values (?,?,?,?,?,?,?)";
+     private static final String GET_TRIP_REVIEW_BYID = "select * from tripreviews where reviewid=? and isactive=true";
++    private static final String GET_TRIP_AVERAGE_REVIEW = "select vehicleid,avg(rating) from tripreviews where vehicleid in (&in) and isactive=true group by vehicleid ";
+     private static final String UPDATE_TRIP_REVIEW = "UPDATE tripreviews set comments=? ,rating=?, updateddate=? WHERE reviewid=?";
+     private static final String UPDATE_TRIP_REVIEW_ISACTIVE = "UPDATE tripreviews set isactive=?, updateddate=? WHERE reviewid=?";
+ 
+     public static BookingResponse listTripReview(BLogger logger, DBManager dbm, int reviewid, List<TripReview> review) throws DBException {
+         BookingResponse reviewResponse = new BookingResponse();
+-
+         if (dbm == null || reviewid == 0) {
+             reviewResponse.setErrorCode("1");
+             reviewResponse.setErrorMessage("Error in TripReview Request");
+             return reviewResponse;
+         }
+-
+         try {
+             DBQueryBuilder dbQB = dbm.getDBQueryBuilder();
+-
+             DBQuery sq = dbQB.setQueryString(GET_TRIP_REVIEW_BYID).setBindInputFunction((dbBLogger, ps) -> {
+                 ps.setInt(1, reviewid);
+             }).setFetchDataFunction((dbFLogger, rs) -> {
+                 review.add(getallData(logger, rs));
+             }).logQuery(true).throwOnNoData(false).build();
+-
+             dbm.select(logger, sq);
+             reviewResponse.setErrorCode("0");
+             reviewResponse.setErrorMessage("Data fetched Succesfully");
+@@ -51,27 +41,20 @@
+             reviewResponse.setErrorMessage("Error in TripReview Request exception" + e.getMessage());
+             return reviewResponse;
+         }
+-
+     }
+ 
+     public static BookingResponse listAllTripReview(BLogger logger, DBManager dbm, List<TripReview> review) throws DBException {
+         BookingResponse reviewResponse = new BookingResponse();
+-
+         if (dbm == null) {
+             reviewResponse.setErrorCode("1");
+             reviewResponse.setErrorMessage("Error in TripReview Request");
+             return reviewResponse;
+         }
+-
+         try {
+             DBQueryBuilder dbQB = dbm.getDBQueryBuilder();
+-
+             DBQuery sq = dbQB.setQueryString(GET_ALL_TRIP_REVIEW).setFetchDataFunction((dbFLogger, rs) -> {
+-
+                 review.add(getallData(logger, rs));
+-
+             }).logQuery(true).throwOnNoData(false).build();
+-
+             dbm.select(logger, sq);
+             reviewResponse.setErrorCode("0");
+             reviewResponse.setErrorMessage("Data Fetched Succesfully");
+@@ -82,25 +65,20 @@
+             reviewResponse.setErrorMessage("Error in TripReview Request exception" + e.getMessage());
+             return reviewResponse;
+         }
+-
+     }
+ 
+     public static BookingResponse insertTripReview(BLogger logger, DBManager dbm, Reservationrequest reviewrequest) throws DBException {
+         BookingResponse reviewResponse = new BookingResponse();
+-        if (dbm == null || reviewResponse == null||reviewrequest.getReservationID()==0||reviewrequest.getVehicleid()==0||reviewrequest.getUserId()==0||reviewrequest.getComments()==null||reviewrequest.getRating()==0||reviewrequest.getTripid()==0) {
++        if (dbm == null || reviewResponse == null || reviewrequest.getReservationID() == 0 || reviewrequest.getVehicleid() == 0 || reviewrequest.getUserId() == 0 || reviewrequest.getComments() == null || reviewrequest.getRating() == 0 || reviewrequest.getTripid() == 0) {
+             reviewResponse.setErrorCode("1");
+             reviewResponse.setErrorMessage("Error in TripReview Request");
+             return reviewResponse;
+         }
+         List<TripReview> triplist = new ArrayList<TripReview>();
+-
+         try {
+-
+             DBQueryBuilder dbQB = dbm.getDBQueryBuilder();
+-
+             DBQuery sq = dbQB.setBatch().setQueryString(ADD_TRIP_REVIEW).setBindInputFunction((dbLogger, ps) -> {
+                 {
+-
+                     ps.setInt(1, reviewrequest.getReservationID());
+                     ps.setInt(2, reviewrequest.getVehicleid());
+                     ps.setInt(3, reviewrequest.getUserId());
+@@ -113,7 +91,6 @@
+             }).setReturnKeys().setFetchDataFunction((dbFlogger, rs) -> {
+                 triplist.add(getallData(logger, rs));
+             }).logQuery(true).build();
+-
+             dbm.update(logger, sq);
+             reviewResponse.setErrorCode("0");
+             reviewResponse.setErrorMessage("Successfully Trip Review Completed");
+@@ -124,7 +101,6 @@
+             reviewResponse.setErrorMessage("Error in TripReview Request exception" + e.getMessage());
+             return reviewResponse;
+         }
+-
+     }
+ 
+     public static BookingResponse updateReview(BLogger logger, DBManager dbm, Reservationrequest reviewsobj) throws DBException {
+@@ -135,10 +111,8 @@
+             return roleResponse;
+         }
+         List<TripReview> masterroleslist = new ArrayList<TripReview>();
+-
+-        if (reviewsobj.getComments()==null && reviewsobj.getReviewid()==0) {
++        if (reviewsobj.getComments() == null && reviewsobj.getReviewid() == 0) {
+             try {
+-
+                 Date updatedDate = new Date();
+                 java.sql.Date sqlendDate = new java.sql.Date(updatedDate.getTime());
+                 java.sql.Timestamp timestampupdatedDate = new java.sql.Timestamp(sqlendDate.getTime());
+@@ -149,13 +123,11 @@
+                         ps.setInt(2, reviewsobj.getRating());
+                         ps.setTimestamp(3, timestampupdatedDate);
+                         ps.setInt(4, reviewsobj.getReviewid());
+-
+                         ps.addBatch();
+                     }
+                 }).setReturnKeys().setFetchDataFunction((dbFlogger, rs) -> {
+                     masterroleslist.add(getallData(logger, rs));
+                 }).logQuery(true).build();
+-
+                 dbm.update(logger, sq);
+                 roleResponse.setErrorCode("0");
+                 roleResponse.setErrorMessage(" Trip Review Updated Successfully");
+@@ -166,28 +138,22 @@
+                 roleResponse.setErrorMessage("Error in TripReview Request exception" + e.getMessage());
+                 return roleResponse;
+             }
+-
+-        } else if(reviewsobj.getReviewid()!=0){
+-
++        } else if (reviewsobj.getReviewid() != 0) {
+             try {
+-
+                 Date updatedDate = new Date();
+                 java.sql.Date sqlendDate = new java.sql.Date(updatedDate.getTime());
+                 java.sql.Timestamp timestampupdatedDate = new java.sql.Timestamp(sqlendDate.getTime());
+                 DBQueryBuilder dbQB = dbm.getDBQueryBuilder();
+                 DBQuery sq = dbQB.setBatch().setQueryString(UPDATE_TRIP_REVIEW_ISACTIVE).setBindInputFunction((dbLogger, ps) -> {
+                     {
+-
+                         ps.setBoolean(1, reviewsobj.getisIsactive());
+                         ps.setTimestamp(2, timestampupdatedDate);
+                         ps.setInt(3, reviewsobj.getReviewid());
+-
+                         ps.addBatch();
+                     }
+                 }).setReturnKeys().setFetchDataFunction((dbFlogger, rs) -> {
+                     masterroleslist.add(getallData(logger, rs));
+                 }).logQuery(true).build();
+-
+                 dbm.update(logger, sq);
+                 roleResponse.setErrorCode("0");
+                 roleResponse.setErrorMessage("Trip Review Updated Successfully");
+@@ -198,19 +164,15 @@
+                 roleResponse.setErrorMessage("Error in TripReview Request exception" + e.getMessage());
+                 return roleResponse;
+             }
+-        }
+-        else {
++        } else {
+             roleResponse.setErrorCode("1");
+             roleResponse.setErrorMessage("Error in TripReview Request");
+             return roleResponse;
+         }
+-
+-
+     }
+ 
+     private static TripReview getallData(BLogger logger, ResultSet rs) throws SQLException {
+         TripReview tripreview = new TripReview();
+-
+         tripreview.setReviewid(rs.getInt("reviewid"));
+         tripreview.setReservationid(rs.getInt("reservationid"));
+         tripreview.setVehicleid(rs.getInt("vehicleid"));
+@@ -221,7 +183,12 @@
+         tripreview.setIsactive(rs.getBoolean("isactive"));
+         tripreview.setTripid(rs.getInt("tripid"));
+         tripreview.setUpdateddate(rs.getString("updateddate"));
+-
++        return tripreview;
++    }
++    private static TripReview getAverage(BLogger logger, ResultSet rs) throws SQLException {
++        TripReview tripreview = new TripReview();
++        tripreview.setAvg(rs.getDouble("avg"));
++        tripreview.setVehicleid(rs.getInt("vehicleid"));
+         return tripreview;
+     }
+ //[19:01] Abhishek Puranik
+@@ -233,21 +200,39 @@
+                 String GET_ALL_BY_AllVEHICLEID = "select * from tripreviews where vehicleid IN (&in)";
+                 String csvId = vehicleid.replaceAll("^|$", "'").replaceAll(",", "','").replaceAll("\"", "'");
+                 String repSearcStr = GET_ALL_BY_AllVEHICLEID.replace("&in", csvId);
+-
+                 DBQueryBuilder dbQB = dbm.getDBQueryBuilder();
+-
+                 DBQuery sq = dbQB.setQueryString(repSearcStr).setBindInputFunction((dbBLogger, ps) -> {
+-
+                 }).setFetchDataFunction((dbFLogger, rs) -> {
+-
+                     vehiclesList.getTripreview().add(getallData(dbFLogger, rs));
++                }).logQuery(true).throwOnNoData(false).build();
++                dbm.select(logger, sq);
++                vehiclesList.setErrorCode("0");
++                vehiclesList.setErrorMessage("Data retrieved successfully");
++                return vehiclesList;
++            } else {
++                vehiclesList.setErrorCode("1");
++                vehiclesList.setErrorMessage("Error retrieving all Trip Rating details of tripreviews ");
++            }
++        } catch (Exception e) {
++            vehiclesList.setErrorMessage("Error retrieving all Trip Rating details - " + e.getMessage());
++            vehiclesList.setErrorCode("1");
++            return vehiclesList;
++        }
++        return vehiclesList;
++    }
+ 
++    public static BookingResponse getAverageReview(BLogger logger, DBManager dbm, String vehicleid) throws DBException {
++        BookingResponse vehiclesList = new BookingResponse();
++        try {
++            if (vehicleid != null) {
++                DBQueryBuilder dbQB = dbm.getDBQueryBuilder();
++                String query=GET_TRIP_AVERAGE_REVIEW.replace("&in",vehicleid);
++                DBQuery sq = dbQB.setQueryString(query).setBindInputFunction((dbBLogger, ps) -> {
++                }).setFetchDataFunction((dbFLogger, rs) -> {
++                    vehiclesList.getTripreview().add(getAverage(dbFLogger, rs));
+                 }).logQuery(true).throwOnNoData(false).build();
+-
+                 dbm.select(logger, sq);
+-
+                 vehiclesList.setErrorCode("0");
+-
+                 vehiclesList.setErrorMessage("Data retrieved successfully");
+                 return vehiclesList;
+             } else {
+@@ -260,6 +245,5 @@
+             return vehiclesList;
+         }
+         return vehiclesList;
+-
+     }
+ }
+\ No newline at end of file
+Index: services/booking-service/src/main/java/com/bundee/booking/db/PaymentAuthConfigDAO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/booking-service/src/main/java/com/bundee/booking/db/PaymentAuthConfigDAO.java b/services/booking-service/src/main/java/com/bundee/booking/db/PaymentAuthConfigDAO.java
+--- a/services/booking-service/src/main/java/com/bundee/booking/db/PaymentAuthConfigDAO.java	(revision 8f51ee853ab04f5bd4a1aaa4363f66d5ba98f171)
++++ b/services/booking-service/src/main/java/com/bundee/booking/db/PaymentAuthConfigDAO.java	(date 1694524146816)
+@@ -15,60 +15,45 @@
+ public class PaymentAuthConfigDAO {
+ 
+     private static final String GET_TRIP_PAYEMENT_BY_HOSTID = "select * from paymentauthorizationconfig where hostid=? and isactive=true";
++    private static final String GET_TRIP_PAYEMENT_BY_HOSTID_AND_VEHICLEID = "select * from paymentauthorizationconfig where hostid=? and vehicleid=? and isactive=true";
+     private static final String INSERT_PAYMENT = "insert into paymentauthorizationconfig (hostid,authorizationpercentage,vehicleid) values (?,?,?)";
+     private static final String GET_TRIP_PAYEMENT_BYID = "select * from paymentauthorizationconfig where id=? and isactive=true";
+     private static final String GET_ALL = "select * from paymentauthorizationconfig where isactive=true";
+ 
+     private static final String UPDATE_PAYMENT = "UPDATE paymentauthorizationconfig set authorizationpercentage=? WHERE id=?";
+     private static final String UPDATE_PAYMENT_ISACTIVE = "UPDATE paymentauthorizationconfig set isactive=? WHERE id=?";
++
+     public static BookingResponse insertSinglePaymentAuthorizationConfiguration(BLogger logger, DBManager dbm, PaymentAuthConfig resobj) throws DBException {
+         BookingResponse bookResponse = new BookingResponse();
+         try {
+-            if (dbm == null || resobj == null  || resobj.getVehicleid() == 0 || resobj.getHostid() == 0 ||     resobj.getAuthorizationpercentage()== 0 ) {
++            if (dbm == null || resobj == null || resobj.getVehicleid() == 0 || resobj.getHostid() == 0 || resobj.getAuthorizationpercentage() == 0) {
+                 bookResponse.setErrorCode("1");
+                 bookResponse.setErrorMessage("Error in paymentauthconfg Request");
+                 return bookResponse;
+             } else {
+-
+-
+-
+-
+                 DBQueryBuilder dbQB = dbm.getDBQueryBuilder();
+                 DBQuery sq = dbQB.setBatch().setQueryString(INSERT_PAYMENT).setBindInputFunction((dbLogger, ps) -> {
+-                    ps.setInt(1,resobj.getHostid());
+-                    ps.setFloat(2,resobj.getAuthorizationpercentage());
+-                    ps.setInt(3,resobj.getVehicleid());
++                    ps.setInt(1, resobj.getHostid());
++                    ps.setFloat(2, resobj.getAuthorizationpercentage());
++                    ps.setInt(3, resobj.getVehicleid());
+                     ps.addBatch();
+-
+                 }).setReturnKeys().setFetchDataFunction((dbFlogger, rs) -> {
+                     bookResponse.getPaymentAuthConfigs().add(PaymentAuthConfigDAO.createResponse(dbFlogger, rs));
+-
+-
+-
+-
+                 }).logQuery(true).build();
+                 dbm.update(logger, sq);
+                 bookResponse.setErrorCode("0");
+                 bookResponse.setErrorMessage("Successfully Payment Authorization Configuration Completed");
+                 return bookResponse;
+-
+-
+-
+             }
+         } catch (DBException e) {
+-
+             bookResponse.setErrorCode("1");
+             bookResponse.setErrorMessage("Error in Payment Authorization Configuration " + e.getMessage());
+             return bookResponse;
+         }
+     }
+ 
+-
+-
+-
+     public static BookingResponse getAllPaymentAuthorizationConfiguration(BLogger logger, DBManager dbm, List<PaymentAuthConfig> paymentresponse) throws DBException {
+         BookingResponse bookResponse = new BookingResponse();
+-
+         if (dbm == null) {
+             bookResponse.setErrorCode("1");
+             bookResponse.setErrorMessage("Error in Payment Authorization Configuration Request");
+@@ -76,13 +61,9 @@
+         }
+         try {
+             DBQueryBuilder dbQB = dbm.getDBQueryBuilder();
+-
+             DBQuery sq = dbQB.setQueryString(GET_ALL).setFetchDataFunction((dbFLogger, rs) -> {
+                 bookResponse.getPaymentAuthConfigs().add(PaymentAuthConfigDAO.createResponse(logger, rs));
+-
+-
+             }).logQuery(true).throwOnNoData(false).build();
+-
+             dbm.select(logger, sq);
+             bookResponse.setErrorCode("0");
+             bookResponse.setErrorMessage(" Payment Authorization Configuration Data retrieved Succesfully");
+@@ -92,13 +73,11 @@
+             bookResponse.setErrorMessage("Error in Payment Authorization Configuration Request exception" + e.getMessage());
+             return bookResponse;
+         }
+-
+     }
+ 
+     public static BookingResponse getPaymentAuthorizationConfigurationById(BLogger logger, DBManager dbm, Reservationrequest resObject, List<PaymentAuthConfig> psresponse) throws DBException {
+         BookingResponse bookResponse = new BookingResponse();
+-
+-        if (dbm == null || resObject == null || resObject.getFromValue()== null || resObject.getId() == 0) {
++        if (dbm == null || resObject == null || resObject.getFromValue() == null || resObject.getId() == 0) {
+             bookResponse.setErrorCode("1");
+             bookResponse.setErrorMessage("Invalid Input Request");
+             return bookResponse;
+@@ -108,38 +87,35 @@
+             if (resObject.getFromValue().toLowerCase().equals("id")) {
+                 queryString = GET_TRIP_PAYEMENT_BYID;
+             } else if (resObject.getFromValue().toLowerCase().equals("hostid")) {
+-                queryString =GET_TRIP_PAYEMENT_BY_HOSTID;
+-
++                queryString = GET_TRIP_PAYEMENT_BY_HOSTID;
++            } else if (resObject.getFromValue().equalsIgnoreCase("hostidnvehicleid")) {
++                queryString = GET_TRIP_PAYEMENT_BY_HOSTID_AND_VEHICLEID;
+             } else {
+                 bookResponse.setErrorCode("1");
+                 bookResponse.setErrorMessage("Invalid Input Request");
+                 return bookResponse;
+             }
+-
+             if (queryString.equals("NA")) {
+                 bookResponse.setErrorCode("1");
+                 bookResponse.setErrorMessage("Invalid Input Request");
+                 return bookResponse;
+             }
+-
+             DBQueryBuilder dbQB = dbm.getDBQueryBuilder();
+-
+             DBQuery sq = dbQB.setQueryString(queryString).setBindInputFunction((dbLogger, ps) -> {
+-                ps.setInt(1, resObject.getId());
++                 if (resObject.getFromValue().equalsIgnoreCase("hostidnvehicleid")) {
++                     ps.setInt(1, resObject.getId());
++                     ps.setInt(2, resObject.getVehicleid());
++                } else {
++                    ps.setInt(1, resObject.getId());
++                }
+             }).setFetchDataFunction((dbFLogger, rs) -> {
+-                psresponse.add(createResponse(dbFLogger,rs));
+-
+-
+-
++                psresponse.add(createResponse(dbFLogger, rs));
+             }).logQuery(true).throwOnNoData(false).build();
+-
+             dbm.select(logger, sq);
+             bookResponse.setErrorCode("0");
+             bookResponse.setErrorMessage(" Payment Authorization Configuration Data retrieved Succesfully");
+             bookResponse.setPaymentAuthConfigs(psresponse);
+-
+             return bookResponse;
+-
+         } catch (Exception e) {
+             bookResponse.setErrorCode("1");
+             bookResponse.setErrorMessage("Error in Payment Authorization Configuration Request exception" + e.getMessage());
+@@ -155,25 +131,18 @@
+             return roleResponse;
+         }
+         List<PaymentAuthConfig> masterroleslist = new ArrayList<PaymentAuthConfig>();
+-
+-        if (reviewsobj.getAuthorizationpercentage()!=0  ) {
++        if (reviewsobj.getAuthorizationpercentage() != 0) {
+             try {
+-
+-
+                 DBQueryBuilder dbQB = dbm.getDBQueryBuilder();
+                 DBQuery sq = dbQB.setBatch().setQueryString(UPDATE_PAYMENT).setBindInputFunction((dbLogger, ps) -> {
+                     {
+-
+                         ps.setFloat(1, reviewsobj.getAuthorizationpercentage());
+                         ps.setInt(2, reviewsobj.getId());
+-
+-
+                         ps.addBatch();
+                     }
+                 }).setReturnKeys().setFetchDataFunction((dbFlogger, rs) -> {
+                     masterroleslist.add(createResponse(logger, rs));
+                 }).logQuery(true).build();
+-
+                 dbm.update(logger, sq);
+                 roleResponse.setErrorCode("0");
+                 roleResponse.setErrorMessage("Succesfully Updated Payment Authorization Configuration");
+@@ -184,26 +153,18 @@
+                 roleResponse.setErrorMessage("Error in Payment Authorization Configuration Request exception" + e.getMessage());
+                 return roleResponse;
+             }
+-
+-        } else if(reviewsobj.getVehicleid()!=0){
+-
++        } else if (reviewsobj.getVehicleid() != 0) {
+             try {
+-
+-
+                 DBQueryBuilder dbQB = dbm.getDBQueryBuilder();
+                 DBQuery sq = dbQB.setBatch().setQueryString(UPDATE_PAYMENT_ISACTIVE).setBindInputFunction((dbLogger, ps) -> {
+                     {
+-
+                         ps.setBoolean(1, reviewsobj.getIsactive());
+-
+                         ps.setInt(2, reviewsobj.getId());
+-
+                         ps.addBatch();
+                     }
+                 }).setReturnKeys().setFetchDataFunction((dbFlogger, rs) -> {
+                     masterroleslist.add(createResponse(logger, rs));
+                 }).logQuery(true).build();
+-
+                 dbm.update(logger, sq);
+                 roleResponse.setErrorCode("0");
+                 roleResponse.setErrorMessage("Successfully Updated Payment Authorization Configuration");
+@@ -214,19 +175,12 @@
+                 roleResponse.setErrorMessage("Error in Payment Authorization Configuration Request exception" + e.getMessage());
+                 return roleResponse;
+             }
+-        }
+-        else {
++        } else {
+             roleResponse.setErrorCode("1");
+             roleResponse.setErrorMessage("Error in Payment Authorization Configuration Request");
+             return roleResponse;
+         }
+-
+-
+     }
+-
+-
+-
+-
+ 
+     public static PaymentAuthConfig createResponse(BLogger logger, ResultSet rs) throws SQLException {
+         PaymentAuthConfig resobj = new PaymentAuthConfig();
+@@ -238,6 +192,5 @@
+         resobj.setVehicleid(rs.getInt("vehicleid"));
+         return resobj;
+     }
+-
+ }
+ 
+Index: services/booking-service/src/main/java/com/bundee/booking/blmodule/DeductionFrequencyConfigModule.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/booking-service/src/main/java/com/bundee/booking/blmodule/DeductionFrequencyConfigModule.java b/services/booking-service/src/main/java/com/bundee/booking/blmodule/DeductionFrequencyConfigModule.java
+--- a/services/booking-service/src/main/java/com/bundee/booking/blmodule/DeductionFrequencyConfigModule.java	(revision 8f51ee853ab04f5bd4a1aaa4363f66d5ba98f171)
++++ b/services/booking-service/src/main/java/com/bundee/booking/blmodule/DeductionFrequencyConfigModule.java	(date 1694524333288)
+@@ -10,6 +10,8 @@
+ import com.bundee.msfw.interfaces.logi.*;
+ import com.bundee.msfw.interfaces.reqrespi.*;
+ 
++import java.util.*;
++
+ public class DeductionFrequencyConfigModule implements BLModule {
+     @Override
+     public void init(BLogger logger, BLModServices blModServices) throws BExceptions {
+@@ -17,7 +19,7 @@
+ 
+     @BEndpoint(uri = BookingDefs.Endpoints.INSERT_DEDUCTIONCONFIGURATION, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = DeductionFrequencyConfig.class)
+     public BaseResponse insertDeductionConfig(BLogger logger, BLModServices blModServices, RequestContext reqCtx,
+-                                           DeductionFrequencyConfig requestObject) throws BExceptions {
++                                              DeductionFrequencyConfig requestObject) throws BExceptions {
+         BookingResponse uList = new BookingResponse();
+         try {
+             uList = DeductionFrequencyConfigDAO.insertIntoDeductionConfig(logger, blModServices.getDBManager()
+@@ -28,26 +30,37 @@
+             uList.setErrorMessage("Error in DeductionFreq    Request");
+             return uList;
+         }
+-
+     }
+-
+ 
+     @BEndpoint(uri = BookingDefs.Endpoints.DEDUCTION_CONFIG_BY_ID, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = PaymentRequest.class)
+     public BaseResponse getAllDeductionConfigbyID(BLogger logger, BLModServices blModServices, RequestContext reqCtx,
+-                                                     PaymentRequest requestObject) throws BExceptions {
++                                                  PaymentRequest requestObject) throws BExceptions {
+         BookingResponse uList = new BookingResponse();
+         try {
+             uList = DeductionFrequencyConfigDAO.getAllDeductionConfigByid(logger, blModServices.getDBManager()
+                     , requestObject);
++            if (requestObject.getFromValue().toLowerCase().equals("alldetails")) {
++                Reservationrequest reservationrequest = new Reservationrequest();
++                reservationrequest.setFromValue("hostidnvehicleid");
++                reservationrequest.setId(requestObject.getId());
++                reservationrequest.setVehicleid(requestObject.getVehicleId());
++                BookingResponse bookResponse = PaymentAuthConfigDAO.getPaymentAuthorizationConfigurationById(logger, blModServices.getDBManager(), reservationrequest, new ArrayList<PaymentAuthConfig>());
++                if (bookResponse.getErrorCode().equals("1") || bookResponse.getPaymentAuthConfigs() == null || bookResponse.getPaymentAuthConfigs().isEmpty()) {
++                    uList.getDeductionDetails().get(0).setAuthorizationpercentage(20);
++                    uList.getDeductionDetails().get(0).setVehicleid(requestObject.getVehicleId());
++                    return uList;
++                }
++                uList.getDeductionDetails().get(0).setAuthorizationpercentage(bookResponse.getPaymentAuthConfigs().get(0).getAuthorizationpercentage());
++                uList.getDeductionDetails().get(0).setVehicleid(requestObject.getVehicleId());
++            }
+             return uList;
+         } catch (DBException e) {
+             uList.setErrorCode("1");
+             uList.setErrorMessage("Error in Deduction Config  Request");
+             return uList;
+         }
+-}
++    }
+ 
+-
+     @BEndpoint(uri = BookingDefs.Endpoints.GET_ALL_DEDUCTION_CONFIG, httpMethod = UniversalConstants.GET, permission = "")
+     public BaseResponse getAllDeductionConfig(BLogger logger, BLModServices blModServices, RequestContext reqCtx) throws BExceptions {
+         BookingResponse uList = new BookingResponse();
+@@ -60,7 +73,4 @@
+             return uList;
+         }
+     }
+-
+-
+-
+ }
+Index: services/booking-service/src/main/java/com/bundee/booking/db/DeductionFrequencyConfigDAO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/booking-service/src/main/java/com/bundee/booking/db/DeductionFrequencyConfigDAO.java b/services/booking-service/src/main/java/com/bundee/booking/db/DeductionFrequencyConfigDAO.java
+--- a/services/booking-service/src/main/java/com/bundee/booking/db/DeductionFrequencyConfigDAO.java	(revision 8f51ee853ab04f5bd4a1aaa4363f66d5ba98f171)
++++ b/services/booking-service/src/main/java/com/bundee/booking/db/DeductionFrequencyConfigDAO.java	(date 1694520101475)
+@@ -12,7 +12,7 @@
+     private static final String GET_BY_ID = "select * from deductionfrequencyconfig where ID=?";
+     private static final String GET_BY_HOST_ID = "select * from deductionfrequencyconfig where hostid=?";
+     private static final String GET_ALL = "select * from  deductionfrequencyconfig ";
+-    private static final String GET_ALL_DETAILS = "select fc.*,deductioneventconfig.tripstart,deductioneventconfig.midtrip,deductioneventconfig.tripend,deductioneventconfig.deductiontime,deductionfrequencydays.days,pc.authorizationpercentage,pc.vehicleid from deductionfrequencyconfig fc inner join deductioneventconfig ON deductioneventconfig.id = fc.deductioneventconfigid inner join deductionfrequencydays ON deductionfrequencydays.id = fc.deductionfrequencydayid inner join paymentauthorizationconfig pc on pc.hostid=fc.hostid and pc.vehicleid=? where fc.hostid=?";
++    private static final String GET_ALL_DETAILS = "select fc.*,deductioneventconfig.tripstart,deductioneventconfig.midtrip,deductioneventconfig.tripend,deductioneventconfig.deductiontime,deductionfrequencydays.days from deductionfrequencyconfig fc inner join deductioneventconfig ON deductioneventconfig.id = fc.deductioneventconfigid inner join deductionfrequencydays ON deductionfrequencydays.id = fc.deductionfrequencydayid where fc.hostid=?";
+ 
+     public static BookingResponse insertIntoDeductionConfig(BLogger logger, DBManager dbm, DeductionFrequencyConfig resobj)
+             throws DBException {
+@@ -67,8 +67,6 @@
+         mobileconf.setTripend(rs.getBoolean("tripend"));
+         mobileconf.setDeductiontime(rs.getString("deductiontime"));
+         mobileconf.setDays(rs.getInt("days"));
+-        mobileconf.setAuthorizationpercentage(rs.getFloat("authorizationpercentage"));
+-        mobileconf.setVehicleid(rs.getInt("vehicleid"));
+         return mobileconf;
+     }
+ 
+@@ -101,14 +99,7 @@
+             }
+             DBQueryBuilder dbQB = dbm.getDBQueryBuilder();
+             DBQuery sq = dbQB.setQueryString(queryString).setBindInputFunction((dbLogger, ps) -> {
+-                if (resObject.getFromValue().toLowerCase().equals("id")) {
+-                    ps.setInt(1, resObject.getId());
+-                } else if (resObject.getFromValue().toLowerCase().equals("hostid")) {
+                     ps.setInt(1, resObject.getId());
+-                } else if (resObject.getFromValue().toLowerCase().equals("alldetails")) {
+-                    ps.setInt(1,resObject.getVehicleId());
+-                    ps.setInt(2,resObject.getId());
+-                }
+             }).setFetchDataFunction((dbFLogger, rs) -> {
+                 if (resObject.getFromValue().toLowerCase().equals("alldetails")) {
+                     mobileConfDetails.getDeductionDetails().add(createAllDeductionDetails(dbFLogger,rs));
+Index: services/booking-service/src/main/java/com/bundee/booking/blmodule/ActiveTripModule.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/booking-service/src/main/java/com/bundee/booking/blmodule/ActiveTripModule.java b/services/booking-service/src/main/java/com/bundee/booking/blmodule/ActiveTripModule.java
+--- a/services/booking-service/src/main/java/com/bundee/booking/blmodule/ActiveTripModule.java	(revision 8f51ee853ab04f5bd4a1aaa4363f66d5ba98f171)
++++ b/services/booking-service/src/main/java/com/bundee/booking/blmodule/ActiveTripModule.java	(date 1694524591197)
+@@ -242,7 +242,7 @@
+             BookingResponse bookResponse = ReservationDAO.checkReservation(logger, blModServices.getDBManager(), validateReservation);
+             if (bookResponse.getErrorCode().equals("1") || !bookResponse.getReserverList().isEmpty()) {
+                 bookResponse.setErrorCode("1");
+-                bookResponse.setReservationResponse(null);
++                bookResponse.setReserverList(new ArrayList<>());
+                 bookResponse.setErrorMessage(" Reservation exist in these dates");
+                 return bookResponse;
+             }
+Index: services/booking-service/src/main/java/com/bundee/booking/db/ReservationDAO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/booking-service/src/main/java/com/bundee/booking/db/ReservationDAO.java b/services/booking-service/src/main/java/com/bundee/booking/db/ReservationDAO.java
+--- a/services/booking-service/src/main/java/com/bundee/booking/db/ReservationDAO.java	(revision 8f51ee853ab04f5bd4a1aaa4363f66d5ba98f171)
++++ b/services/booking-service/src/main/java/com/bundee/booking/db/ReservationDAO.java	(date 1694603486042)
+@@ -32,12 +32,14 @@
+     private static final String INSERT_RESERVATION = "insert into reservation (vehicleid,starttime,endtime,userid,hostid,channelid,reservationstatus,statuscode) values ( ?,?,?,?,?,?,?,?)";
+     private static final String SELECT_TIMESTAMP = "select  v.vehicleid,count(b.vehicleid) as tripcount,avg(b.rating) as rating from reservation v left join tripreviews b on v.reservationid=b.reservationid WHERE  v.statuscode in ('RUP','RON') and (to_char(v.starttime,'yyyy-MM-dd HH:MM:SS') between ? and ?  or to_char(v.endtime,'yyyy-MM-dd HH:MM:SS') between ?  and ?)  and v.isactive=true group by v.vehicleid";
+     private static final String RESERVATION_BY_VehicleID = "select * from  reservation where vehicleid=? and isactive=true";
++    private static final String RESERVATION_BY_VehicleID_COMPLETED = "select * from  reservation where vehicleid=? and statuscode in ('RUP','RON') and isactive=true";
++
+     private static final String CHECK_RESERVATION = "select  * from reservation WHERE vehicleid IN (&in) and statuscode in ('RUP','RON')  and isactive=true and (to_char(starttime,'yyyy-MM-dd') between ? and ?  or to_char(endtime,'yyyy-MM-dd') between  ? and ?)";
+     private static final String RESERVATION_BY_UsreID = "select * from  reservation where userid=? and isactive=true";
+     private static final String RESERVATION_BY_ReservationID = "select * from  reservation where reservationid=? and isactive=true";
+     private static final String RESERVATION_BY_Host_ID = "select * from  reservation where hostid=? and isactive=true";
+     private static final String GET_ALL = "select * from reservation where isactive=true";
+-    private static final String GET_TRIP_COUNT_AND_REVIEW = "select o.vehicleid, count(o.vehicleid) as tripcount,avg(b.rating) as rating from activetrip o left join tripreviews b on o.vehicleid=b.vehicleid where o.vehicleid in  (&in) and statuscode=? group by o.vehicleid ";
++    private static final String GET_TRIP_COUNT_AND_REVIEW = "select o.vehicleid, count(o.vehicleid) as tripcount  from activetrip o where o.vehicleid in  (&in) and statuscode=? group by o.vehicleid ";
+     private static final String TRIP_STATUS_BY_ID = "SELECT * FROM activetrip WHERE tripid=? and isactive=true";
+ 
+     private static final String RESERVATION_BY_USER = "select * from  reservation where userid=? and isactive is true";
+@@ -47,6 +49,7 @@
+     private static final String GET_BOOKING_STATUS_BY_ID = "select * from bookingstatus where bookingstatus=? and isactive is true";
+     private static final String INSERT_TRIP_STATUS = "insert into activetrip (reservationid,userid,hostid,vehicleid,channelid,tripstatus,statuscode) values (?,?,?,?,?,?,?)";
+     private static final String UPDATE_RESERVATION_STATUS = "UPDATE reservation SET reservationstatus=?,statuscode=?, updtd_ts=? where reservationid=? ";
++    private static final String UPDATE_RESERVATION_TIME = "UPDATE public.reservation SET updtd_ts=?,  starttime=?, endtime=?, reservationstatus=?, statuscode=? WHERE reservationid=?;";
+ 
+     public static BookingResponse checkReservation(BLogger logger, DBManager dbm, ValidateReservation resobj) {
+         BookingResponse bookResponse = new BookingResponse();
+@@ -115,7 +118,7 @@
+                     bookResponse=checkReservation(logger,dbm,validateReservation);
+                     if (bookResponse.getErrorCode().equals("1")|| !bookResponse.getReserverList().isEmpty()) {
+                         bookResponse.setErrorCode("1");
+-                        bookResponse.setReservationResponse(null);
++                        bookResponse.setReserverList(new ArrayList<Reservation>());
+                         bookResponse.setErrorMessage(" Reservation exist in these dates");
+                         return bookResponse;
+                     }
+@@ -243,7 +246,6 @@
+     }
+     private static Reservation addReservationData(BLogger logger, ResultSet rs) throws SQLException {
+         Reservation vh = new Reservation();
+-        vh.setRating(rs.getDouble("rating"));
+         vh.setTripcount(rs.getInt("tripcount"));
+         vh.setVehicleid(rs.getInt("vehicleid"));
+         return vh;
+@@ -386,6 +388,9 @@
+             if (reqObject.getVehicleid() != 0) {
+                 reqObject.setVehicleid(reqObject.getVehicleid());
+                 queryStringReservation = RESERVATION_BY_VehicleID;
++            }else if (reqObject.getVehicleIdCompleted() != 0) {
++                reqObject.setVehicleid(reqObject.getVehicleIdCompleted());
++                queryStringReservation = RESERVATION_BY_VehicleID_COMPLETED;
+             } else if (reqObject.getUserId() != 0) {
+                 reqObject.setVehicleid(reqObject.getUserId());
+                 queryStringReservation = RESERVATION_BY_UsreID;
+@@ -535,6 +540,32 @@
+                         bookResponse.setErrorCode("1");
+                         bookResponse.setErrorMessage("Invalid Booking Status");
+                         return bookResponse;
++                    }
++                    if(resobj.getEndTime()!=null&&resobj.getStartTime()!=null){
++                        Date date = new Date();
++                        java.sql.Date sqlDate = new java.sql.Date(date.getTime());
++                        java.sql.Timestamp updatedTime = new java.sql.Timestamp(sqlDate.getTime());
++                        Date startDate = new SimpleDateFormat("yyyy-MM-dd").parse(resobj.getStartTime().toString());
++                        Date endDate = new SimpleDateFormat("yyyy-MM-dd").parse(resobj.getEndTime().toString());
++                        java.sql.Date sqlStartDate = new java.sql.Date(startDate.getTime());
++                        java.sql.Date sqlendDate = new java.sql.Date(endDate.getTime());
++                        java.sql.Timestamp timestampStartDate = new java.sql.Timestamp(sqlStartDate.getTime());
++                        java.sql.Timestamp timestampEndDate = new java.sql.Timestamp(sqlendDate.getTime());
++                        DBQuery sqUpdate = dbQB.setBatch().setQueryString(UPDATE_RESERVATION_TIME).setBindInputFunction((dbLogger, ps) -> {
++                            ps.setTimestamp(1, updatedTime);
++                            ps.setTimestamp(2, timestampStartDate);
++                            ps.setTimestamp(3, timestampEndDate);
++                            ps.setInt(4, resobj.getReservationStatus());
++                            ps.setString(5, resobj.getStatusCode());
++                            ps.setInt(6, resobj.getReservationID());
++                            ps.addBatch();
++                        }).setReturnKeys().setFetchDataFunction((dbFLogger, rs) -> {
++                            bookResponse.getReservation().add(getallreservationbyid(dbFLogger, rs));
++                        }).logQuery(true).build();
++                        dbm.update(logger, sqUpdate);
++                        bookResponse.setErrorCode("0");
++                        bookResponse.setErrorMessage("Successfully UPDATED");
++                        return bookResponse;
+                     }
+                     Date date = new Date();
+                     java.sql.Date sqlDate = new java.sql.Date(date.getTime());
+Index: services/availability-service/src/main/java/com/bundee/availability/pojo/RootZipcode.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/availability-service/src/main/java/com/bundee/availability/pojo/RootZipcode.java b/services/availability-service/src/main/java/com/bundee/availability/pojo/RootZipcode.java
+--- a/services/availability-service/src/main/java/com/bundee/availability/pojo/RootZipcode.java	(revision 8f51ee853ab04f5bd4a1aaa4363f66d5ba98f171)
++++ b/services/availability-service/src/main/java/com/bundee/availability/pojo/RootZipcode.java	(date 1694591074087)
+@@ -22,6 +22,23 @@
+     private String errorCode;
+     private String errorMessage;
+     private int count;
++    List<Reservation> reserverList;
++
++    public List<CustomerWishlistResponse> getCustomerwishlist() {
++        return customerwishlist;
++    }
++
++    public void setCustomerwishlist(List<CustomerWishlistResponse> customerwishlist) {
++        this.customerwishlist = customerwishlist;
++    }
++
++    public List<Reservation> getReserverList() {
++        return reserverList;
++    }
++
++    public void setReserverList(List<Reservation> reserverList) {
++        this.reserverList = reserverList;
++    }
+ 
+     public RootZipcode() {
+         vehicledetails = new ArrayList<VehicleDetails>();
+@@ -36,7 +53,7 @@
+         unAvailabilityDate = new ArrayList<String>();
+         reservationResponse = new ArrayList<ReservationResponse>();
+         customerwishlist = new ArrayList<CustomerWishlistResponse>();
+-
++        reserverList=new ArrayList<Reservation>();
+ 
+     }
+ 
+Index: services/availability-service/src/main/java/com/bundee/availability/defs/AvailabilityDefs.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/availability-service/src/main/java/com/bundee/availability/defs/AvailabilityDefs.java b/services/availability-service/src/main/java/com/bundee/availability/defs/AvailabilityDefs.java
+--- a/services/availability-service/src/main/java/com/bundee/availability/defs/AvailabilityDefs.java	(revision 8f51ee853ab04f5bd4a1aaa4363f66d5ba98f171)
++++ b/services/availability-service/src/main/java/com/bundee/availability/defs/AvailabilityDefs.java	(date 1694602974806)
+@@ -7,6 +7,7 @@
+ 		public static final String UPLOAD_VEHICLES = "api/v1/vehicle/upload";
+ 		public static final String SEARCH_BY_ZIP = "api/v1/vehicle/search/byzip";
+ 		public static final String SEARCH_BY_ZIP_PAGE = "api/v1/vehicle/search/byzippage";
++		public static final String SEARCH_BY_ZIPCODE = "api/v1/vehicle/search/getByZipCode";
+ 		public static final String VEHICLE_ZIPCODE = "api/v1/vehicle/zipcode";
+ 		public static final String VEHICLE_LIST = "api/v1/vehicle/vehiclelist";
+ 		public static final String FEATRESLIST_BY_ID = "api/v1/vehicle/vehiclelistbyid";
+Index: services/booking-service/src/main/java/com/bundee/booking/db/PaymentTokenDAO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/booking-service/src/main/java/com/bundee/booking/db/PaymentTokenDAO.java b/services/booking-service/src/main/java/com/bundee/booking/db/PaymentTokenDAO.java
+--- a/services/booking-service/src/main/java/com/bundee/booking/db/PaymentTokenDAO.java	(revision 8f51ee853ab04f5bd4a1aaa4363f66d5ba98f171)
++++ b/services/booking-service/src/main/java/com/bundee/booking/db/PaymentTokenDAO.java	(date 1694521035494)
+@@ -49,7 +49,7 @@
+                             ps.setInt(7, resobj.getPaymentauthorizationconfigid());
+                             ps.setDouble(8, resobj.getAuthorizationamount()); // Assuming getAuthorizationamount() returns a double
+                             ps.setDouble(9, resobj.getAuthorizationpercentage());
+-                            ps.setInt(10, resobj.getTotaldays());
++                            ps.setDouble(10, resobj.getTotaldays());
+                             ps.setDouble(11, resobj.getPerdayamount());
+                             ps.setDouble(12, resobj.getTotalamount());
+                             ps.setString(13, resobj.getStrippaymenttoken()); // Assuming getStrippaymenttoken() returns a string
+@@ -215,7 +215,7 @@
+                 DBQueryBuilder dbQB = dbm.getDBQueryBuilder();
+                 DBQuery sq = dbQB.setBatch().setQueryString(UPDATE_TRIPPAYMENT_TOKEN)
+                         .setBindInputFunction((dbLogger, ps) -> {
+-                            ps.setInt(1, resobj.getTotaldays());
++                            ps.setDouble(1, resobj.getTotaldays());
+                             ps.setDouble(2, resobj.getPerdayamount());
+                             ps.setDouble(3, resobj.getTotalamount());
+                             ps.setInt(4, resobj.getId());
+Index: services/availability-service/src/main/java/com/bundee/availability/pojo/VehicleDetails.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/availability-service/src/main/java/com/bundee/availability/pojo/VehicleDetails.java b/services/availability-service/src/main/java/com/bundee/availability/pojo/VehicleDetails.java
+--- a/services/availability-service/src/main/java/com/bundee/availability/pojo/VehicleDetails.java	(revision 8f51ee853ab04f5bd4a1aaa4363f66d5ba98f171)
++++ b/services/availability-service/src/main/java/com/bundee/availability/pojo/VehicleDetails.java	(date 1694591074093)
+@@ -59,11 +59,98 @@
+ 	List<MasterVehicleImageResponse> imageresponse;
+ 	private boolean wishList;
+ 	List<TripReview> tripreview;
+-	
+-	
+-	
+-	
+-	
++	private String vehicleDescription;
++	private String seatingCapacity;
++	private String insuranceHeader;
++	private String insuranceHeaderType;
++
++	private String insuranceDetails1;
++	private String insuranceDetails2;
++	private String insuranceDetails3;
++	private String parkingDetails;
++	private String guideLines;
++	private String policies;
++
++	public String getParkingDetails() {
++		return parkingDetails;
++	}
++
++	public void setParkingDetails(String parkingDetails) {
++		this.parkingDetails = parkingDetails;
++	}
++
++	public String getGuideLines() {
++		return guideLines;
++	}
++
++	public void setGuideLines(String guideLines) {
++		this.guideLines = guideLines;
++	}
++
++	public String getPolicies() {
++		return policies;
++	}
++
++	public void setPolicies(String policies) {
++		this.policies = policies;
++	}
++
++	public String getVehicleDescription() {
++		return vehicleDescription;
++	}
++
++	public void setVehicleDescription(String vehicleDescription) {
++		this.vehicleDescription = vehicleDescription;
++	}
++
++	public String getSeatingCapacity() {
++		return seatingCapacity;
++	}
++
++	public void setSeatingCapacity(String seatingCapacity) {
++		this.seatingCapacity = seatingCapacity;
++	}
++
++	public String getInsuranceHeader() {
++		return insuranceHeader;
++	}
++
++	public void setInsuranceHeader(String insuranceHeader) {
++		this.insuranceHeader = insuranceHeader;
++	}
++
++	public String getInsuranceHeaderType() {
++		return insuranceHeaderType;
++	}
++
++	public void setInsuranceHeaderType(String insuranceHeaderType) {
++		this.insuranceHeaderType = insuranceHeaderType;
++	}
++
++	public String getInsuranceDetails1() {
++		return insuranceDetails1;
++	}
++
++	public void setInsuranceDetails1(String insuranceDetails1) {
++		this.insuranceDetails1 = insuranceDetails1;
++	}
++
++	public String getInsuranceDetails2() {
++		return insuranceDetails2;
++	}
++
++	public void setInsuranceDetails2(String insuranceDetails2) {
++		this.insuranceDetails2 = insuranceDetails2;
++	}
++
++	public String getInsuranceDetails3() {
++		return insuranceDetails3;
++	}
++
++	public void setInsuranceDetails3(String insuranceDetails3) {
++		this.insuranceDetails3 = insuranceDetails3;
++	}
++
+ 	public List<TripReview> getTripreview() {
+ 		return tripreview;
+ 	}
+Index: services/host-vehicle-service/src/main/java/com/bundee/hvs/db/CustomerWishListDAO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/host-vehicle-service/src/main/java/com/bundee/hvs/db/CustomerWishListDAO.java b/services/host-vehicle-service/src/main/java/com/bundee/hvs/db/CustomerWishListDAO.java
+--- a/services/host-vehicle-service/src/main/java/com/bundee/hvs/db/CustomerWishListDAO.java	(revision 8f51ee853ab04f5bd4a1aaa4363f66d5ba98f171)
++++ b/services/host-vehicle-service/src/main/java/com/bundee/hvs/db/CustomerWishListDAO.java	(date 1694602210184)
+@@ -19,7 +19,7 @@
+ public class CustomerWishListDAO {
+ 
+     private static final String INSERT_INTO_CUSTOMER_WISHLIST = "insert into customerwishlist (userid,vehicleid,isfavourite) values (?,?,?)";
+-    private static final String UPDATE_CUSTOMERWISHLIST = "UPDATE customerwishlist SET  isfavourite=?, updateddate=?,isactive=true WHERE userid=? AND vehicleid=?";
++    private static final String UPDATE_CUSTOMERWISHLIST = "UPDATE customerwishlist SET updateddate=?,isactive=? WHERE userid=? AND vehicleid=?";
+     private static final String SOFT_UPDATE_CUSTOMERWISHLIST = "UPDATE customerwishlist SET  isactive=?, updateddate=? WHERE userid=? ";
+     private static final String GET_CUSTOMERWISHLIST_HOSTVEHICLE = "select b.*,a.isfavourite,a.vehicleid,a.userid from customerwishlist a inner join mastervehicle b on a.vehicleid=b.id where a.userid=?";
+     private static final String GET_ALL_CUSTOMERWISHLIST = "select * from customerwishlist where isactive=true";
+@@ -173,8 +173,8 @@
+                 DBQueryBuilder dbQBUpdate = dbm.getDBQueryBuilder();
+                 VehiclesList finalBookResponse = bookResponse;
+                 DBQuery sqUpdate = dbQBUpdate.setBatch().setQueryString(UPDATE_CUSTOMERWISHLIST).setBindInputFunction((dbLogger, ps) -> {
+-                    ps.setBoolean(1, customerobj.getisIsfavourite());
+-                    ps.setTimestamp(2, updateddatets);
++                    ps.setTimestamp(1, updateddatets);
++                    ps.setBoolean(2, customerobj.getisIsfavourite());
+                     ps.setInt(3, customerobj.getUserid());
+                     ps.setInt(4, customerobj.getVehicleid());
+                     ps.addBatch();
+Index: services/booking-service/src/main/java/com/bundee/booking/pojo/TripModificationDetail.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/booking-service/src/main/java/com/bundee/booking/pojo/TripModificationDetail.java b/services/booking-service/src/main/java/com/bundee/booking/pojo/TripModificationDetail.java
+--- a/services/booking-service/src/main/java/com/bundee/booking/pojo/TripModificationDetail.java	(revision 8f51ee853ab04f5bd4a1aaa4363f66d5ba98f171)
++++ b/services/booking-service/src/main/java/com/bundee/booking/pojo/TripModificationDetail.java	(date 1694520675020)
+@@ -23,6 +23,24 @@
+     private Boolean isActive;
+     private String createdDate;
+     private String updatedDate;
++    private String starTime;
++    private String endTime;
++
++    public String getStarTime() {
++        return starTime;
++    }
++
++    public void setStarTime(String starTime) {
++        this.starTime = starTime;
++    }
++
++    public String getEndTime() {
++        return endTime;
++    }
++
++    public void setEndTime(String endTime) {
++        this.endTime = endTime;
++    }
+ 
+     public int getId() {
+         return id;
+Index: services/booking-service/src/main/java/com/bundee/booking/blmodule/ReservationModule.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/booking-service/src/main/java/com/bundee/booking/blmodule/ReservationModule.java b/services/booking-service/src/main/java/com/bundee/booking/blmodule/ReservationModule.java
+--- a/services/booking-service/src/main/java/com/bundee/booking/blmodule/ReservationModule.java	(revision 8f51ee853ab04f5bd4a1aaa4363f66d5ba98f171)
++++ b/services/booking-service/src/main/java/com/bundee/booking/blmodule/ReservationModule.java	(date 1694601349463)
+@@ -1,19 +1,15 @@
+ package com.bundee.booking.blmodule;
+ 
+ import com.bundee.booking.db.*;
+-import com.bundee.booking.defs.BookingDefs;
+-import com.bundee.booking.defs.BookingProcessingCode;
++import com.bundee.booking.defs.*;
+ import com.bundee.booking.pojo.*;
+ import com.bundee.booking.utils.*;
+-import com.bundee.msfw.defs.BExceptions;
+-import com.bundee.msfw.defs.BaseResponse;
+-import com.bundee.msfw.defs.UniversalConstants;
+-import com.bundee.msfw.interfaces.blmodi.BLModServices;
+-import com.bundee.msfw.interfaces.blmodi.BLModule;
+-import com.bundee.msfw.interfaces.dbi.DBException;
+-import com.bundee.msfw.interfaces.endpoint.BEndpoint;
+-import com.bundee.msfw.interfaces.logi.BLogger;
+-import com.bundee.msfw.interfaces.reqrespi.RequestContext;
++import com.bundee.msfw.defs.*;
++import com.bundee.msfw.interfaces.blmodi.*;
++import com.bundee.msfw.interfaces.dbi.*;
++import com.bundee.msfw.interfaces.endpoint.*;
++import com.bundee.msfw.interfaces.logi.*;
++import com.bundee.msfw.interfaces.reqrespi.*;
+ 
+ import java.util.*;
+ 
+@@ -74,7 +70,7 @@
+                 return bookResponse;
+             }
+             if (bookResponse.getActiveTrips().get(0).getTripid() != 0) {
+-                TripPaymentToken tripPaymentToken =new TripPaymentToken();
++                TripPaymentToken tripPaymentToken = new TripPaymentToken();
+                 tripPaymentToken.setTripid(bookResponse.getActiveTrips().get(0).getTripid());
+                 tripPaymentToken.setChannelid(bookResponse.getReservationResponse().getChannelid());
+                 tripPaymentToken.setReservationid(bookResponse.getActiveTrips().get(0).getReservationID());
+@@ -88,14 +84,14 @@
+                 tripPaymentToken.setAuthorizationpercentage(resObject.getAuthorizationpercentage());
+                 tripPaymentToken.setPerdayamount(resObject.getPerDayAmount());
+                 tripPaymentToken.setTotaldays(resObject.getTotalDays());
+-                tripPaymentToken.setTotalamount(resObject.getPerDayAmount()*resObject.getTotalDays());
++                tripPaymentToken.setTotalamount(resObject.getPerDayAmount() * resObject.getTotalDays());
+                 tripPaymentToken.setStrippaymenttoken(resObject.getStripePaymentToken());
+                 tripPaymentToken.setStrippaymentid(resObject.getStripePaymentID());
+                 tripPaymentToken.setStripetransactiondetails(resObject.getStripePaymentTransactionDetail());
+                 tripPaymentToken.setPaymentmethodidtoken(resObject.getPaymentMethodIDToken());
+                 tripPaymentToken.setCustomertoken(resObject.getCustomerToken());
+                 tripPaymentToken.setSetupIntentToken(resObject.getSetupIntentToken());
+-                BookingResponse bookResponse1 = PaymentTokenDAO.insertIntoTripPayment(logger, blModServices.getDBManager(),tripPaymentToken);
++                BookingResponse bookResponse1 = PaymentTokenDAO.insertIntoTripPayment(logger, blModServices.getDBManager(), tripPaymentToken);
+                 if (bookResponse1.getErrorCode().equals("1")) {
+                     bookResponse.setErrorCode("1");
+                     bookResponse.setErrorMessage("Error in payment");
+@@ -137,6 +133,24 @@
+         try {
+             bookResponse = ReservationDAO.getVehicleDetail(logger, blModServices.getDBManager(),
+                     resObject.getFromValue());
++            BookingResponse bookResponse1 = TripReviewDAO.getAverageReview(logger, blModServices.getDBManager(), resObject.getFromValue());
++            if (bookResponse1.getErrorCode().equals("1")) {
++                bookResponse.setErrorCode("1");
++                bookResponse.setErrorMessage("Error getting average review ");
++                return bookResponse;
++            }
++            List<String> categoryListId = new ArrayList<String>(Arrays.asList(resObject.getFromValue().split(",")));
++            for (String s : categoryListId) {
++                List<Reservation> featureList = bookResponse.getReserverList().stream()
++                        .filter(p -> p.getVehicleid() == Integer.parseInt(s)).toList();
++                if (!featureList.isEmpty()) {
++                    List<TripReview> featureList1 = bookResponse1.getTripreview().stream()
++                            .filter(p -> p.getVehicleid() == Integer.parseInt(s)).toList();
++                    if (!featureList1.isEmpty()) {
++                        featureList.get(0).setRating(featureList1.get(0).getAvg());
++                    }
++                }
++            }
+             return bookResponse;
+         } catch (Exception e) {
+             bookResponse.setErrorCode("1");
+@@ -210,7 +224,6 @@
+             throw new BExceptions(e, BookingProcessingCode.ERROR_EXCEPTION);
+         }
+     }
+-
+ //    @BEndpoint(uri = BookingDefs.Endpoints.UPDATE_RESERVATION_APPROVAL_STATUS, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = Reservationrequest.class)
+ //    public BaseResponse updateReservationApprovalStatus(BLogger logger, BLModServices blModServices, RequestContext reqCtx,
+ //                                                        Reservationrequest requestObject) throws BExceptions {
+Index: services/booking-service/src/main/java/com/bundee/booking/blmodule/TripModificationDetailModule.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/booking-service/src/main/java/com/bundee/booking/blmodule/TripModificationDetailModule.java b/services/booking-service/src/main/java/com/bundee/booking/blmodule/TripModificationDetailModule.java
+--- a/services/booking-service/src/main/java/com/bundee/booking/blmodule/TripModificationDetailModule.java	(revision 8f51ee853ab04f5bd4a1aaa4363f66d5ba98f171)
++++ b/services/booking-service/src/main/java/com/bundee/booking/blmodule/TripModificationDetailModule.java	(date 1694521653575)
+@@ -3,6 +3,7 @@
+ import com.bundee.booking.db.*;
+ import com.bundee.booking.defs.*;
+ import com.bundee.booking.pojo.*;
++import com.bundee.booking.utils.*;
+ import com.bundee.msfw.defs.*;
+ import com.bundee.msfw.interfaces.blmodi.*;
+ import com.bundee.msfw.interfaces.dbi.*;
+@@ -10,46 +11,260 @@
+ import com.bundee.msfw.interfaces.logi.*;
+ import com.bundee.msfw.interfaces.reqrespi.*;
+ 
+-public class TripModificationDetailModule implements BLModule{
+-    @BEndpoint(uri = BookingDefs.Endpoints.GET_TRIP_PAYEMENT_MODIFICATION, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = Reservationrequest.class)
++import java.text.*;
++import java.util.*;
++
++public class TripModificationDetailModule implements BLModule {
++    @BEndpoint(uri = BookingDefs.Endpoints.GET_TRIP_PAYEMENT_MODIFICATION_DETAIL, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = Reservationrequest.class)
+     public BaseResponse getTripModificationType(BLogger logger, BLModServices blModServices, RequestContext reqCtx,
+                                                 Reservationrequest resObject) throws BExceptions {
+-
+-
+         BookingResponse bookResponse = new BookingResponse();
+         try {
+             bookResponse = TripModificationDetailDAO.getTripModificationDetail(logger, blModServices.getDBManager(), resObject);
+-
+-
+         } catch (DBException e) {
+             GenericReservationResponse genericresponse = new GenericReservationResponse();
+             genericresponse.setErrorCode("1");
+             genericresponse.setErrorMessage("Error in Payment Capture Request");
+             return bookResponse;
+         }
+-
+         return bookResponse;
+-
+     }
+-    @BEndpoint(uri = BookingDefs.Endpoints.GET_ALL_TRIP_PAYEMENT_MODIFICATION, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = Reservationrequest.class)
++
++    @BEndpoint(uri = BookingDefs.Endpoints.GET_ALL_TRIP_PAYEMENT_MODIFICATION_DETAIL, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = Reservationrequest.class)
+     public BaseResponse getAllTripModificationType(BLogger logger, BLModServices blModServices, RequestContext reqCtx,
+                                                    Reservationrequest resObject) throws BExceptions {
+-
+-
+         BookingResponse bookResponse = new BookingResponse();
+         try {
+             bookResponse = TripModificationDetailDAO.getAllTripModificationDetail(logger, blModServices.getDBManager(), resObject);
+-
+-
+         } catch (DBException e) {
+             GenericReservationResponse genericresponse = new GenericReservationResponse();
+             genericresponse.setErrorCode("1");
+             genericresponse.setErrorMessage("Error in Payment Capture Request");
+             return bookResponse;
+         }
+-
++        return bookResponse;
++    }
++
++    @BEndpoint(uri = BookingDefs.Endpoints.CREATE_TRIP_PAYMENT_MODIFICATION_EXTENSION, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = TripModificationDetail.class)
++    public BaseResponse createTripModificationExtention(BLogger logger, BLModServices blModServices, RequestContext reqCtx,
++                                                        TripModificationDetail resObject) throws BExceptions {
++        BookingResponse bookResponse = new BookingResponse();
++        try {
++            Reservationrequest reservationrequest = new Reservationrequest();
++            reservationrequest.setUserId(resObject.getTripId());
++            reservationrequest.setFromValue("tripid");
++            BookingResponse getstatus = ActiveCrudDAO.getByTripResponse(logger, blModServices.getDBManager(), reservationrequest, new ArrayList<ActiveTripResponse>());
++            if (getstatus.getErrorCode().equals("1") || getstatus.getActivetripresponse() == null || getstatus.getActivetripresponse().isEmpty()) {
++                bookResponse.setErrorCode("1");
++                bookResponse.setErrorCode("Trip does not exist");
++                return bookResponse;
++            }
++            if (!(String.valueOf(TripStatusEnum.RREQ).equals(getstatus.getActivetripresponse().get(0).getStatusCode()) || String.valueOf(TripStatusEnum.RUP).equals(getstatus.getActivetripresponse().get(0).getStatusCode()) || String.valueOf(TripStatusEnum.RON).equals(getstatus.getActivetripresponse().get(0).getStatusCode()))) {
++                bookResponse.setErrorCode("1");
++                bookResponse.setErrorCode("Trip Modification not allowed");
++                return bookResponse;
++            }
++            RservationRequestbyId requestbyId = new RservationRequestbyId();
++            requestbyId.setReservationId(getstatus.getActivetripresponse().get(0).getReservationid());
++            GenericReservationResponse reservationResponse = ReservationDAO.getresponsebyid(logger, blModServices.getDBManager(), requestbyId);
++            if (reservationResponse.getErrorCode().equals("1") || reservationResponse.getReservation() == null || reservationResponse.getReservation().isEmpty()) {
++                bookResponse.setErrorCode("1");
++                bookResponse.setErrorCode("reservation does not exist");
++                return bookResponse;
++            }
++            List<VehicleUnavaliblity> availability = Util.getavailability(getstatus.getActivetripresponse().get(0).getVehicleId(), resObject.getStarTime(), resObject.getEndTime());
++            if (!availability.isEmpty()) {
++                bookResponse.setErrorCode("1");
++                bookResponse.setErrorMessage("Vehicle Unavailable at these dates");
++                return bookResponse;
++            }
++            ValidateReservation validateReservation = new ValidateReservation();
++            validateReservation.getVehicleIds().add(getstatus.getActivetripresponse().get(0).getVehicleId());
++//            java.util.Date endDate = new SimpleDateFormat("yyyy-MM-dd").parse(reservationResponse.getReservation().get(0).getEndTime().toString());
++//            Calendar calendar = Calendar.getInstance();
++//            calendar.setTime(endDate);
++//            calendar.add(Calendar.DAY_OF_MONTH, 1);
++//            Date nextDate = calendar.getTime();
++//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
++//            String nextDateString = sdf.format(nextDate);
++            validateReservation.setEndTime(resObject.getEndTime());
++            validateReservation.setStartTime(resObject.getStarTime());
++            bookResponse = ReservationDAO.checkReservation(logger, blModServices.getDBManager(), validateReservation);
++            if (bookResponse.getErrorCode().equals("1") || !bookResponse.getReserverList().isEmpty()) {
++                bookResponse.setErrorCode("1");
++                bookResponse.setReserverList(new ArrayList<>());
++                bookResponse.setErrorMessage(" Reservation exist in these dates");
++                return bookResponse;
++            }
++            Reservationrequest reservationrequest1 = new Reservationrequest();
++            reservationrequest1.setId(resObject.getTripId());
++            reservationrequest1.setFromValue("tripid");
++            BookingResponse paymentTokenById = PaymentTokenDAO.getTripPaymentTokenById(logger, blModServices.getDBManager(), reservationrequest1);
++            if (paymentTokenById.getErrorCode().equals("1") || paymentTokenById.getTripPaymentTokens().isEmpty()) {
++                bookResponse.setErrorCode("1");
++                bookResponse.setErrorMessage(" Trip Payment Token does not exist");
++                return bookResponse;
++            }
++            Reservationrequest reservationrequest2 = new Reservationrequest();
++            reservationrequest2.setFromValue("code");
++            reservationrequest2.setStatusCode(String.valueOf(ModificationTypeCode.TME));
++            BookingResponse tripModificationType = TripModificationTypeDAO.getTripModificationType(logger, blModServices.getDBManager(), reservationrequest2);
++            if (tripModificationType.getErrorCode().equals("1") || tripModificationType.getTripModificationTypes().isEmpty()) {
++                bookResponse.setErrorCode("1");
++                bookResponse.setErrorMessage(" Trip Modification Type does not exist");
++                return bookResponse;
++            }
++            TripModificationDetail detail = new TripModificationDetail();
++            detail.setTripId(resObject.getTripId());
++            detail.setReservationId(getstatus.getActivetripresponse().get(0).getReservationid());
++            detail.setUserId(reservationResponse.getReservation().get(0).getUserId());
++            detail.setVehicleID(reservationResponse.getReservation().get(0).getVehicleid());
++            detail.setTripPaymentTokenID(paymentTokenById.getTripPaymentTokens().get(0).getId());
++            detail.setHostID(reservationResponse.getReservation().get(0).getHostid());
++            detail.setChannelID(reservationResponse.getReservation().get(0).getChannelid());
++            detail.setModificationTypeCodeID(tripModificationType.getTripModificationTypes().get(0).getId());
++            detail.setModificationTypeCode(tripModificationType.getTripModificationTypes().get(0).getCode());
++            detail.setTotalDays(paymentTokenById.getTripPaymentTokens().get(0).getTotaldays());
++            detail.setAmountPerDays(paymentTokenById.getTripPaymentTokens().get(0).getPerdayamount());
++            detail.setTripAmount(paymentTokenById.getTripPaymentTokens().get(0).getTripAmount());
++            detail.setTripAuthConfigID(paymentTokenById.getTripPaymentTokens().get(0).getPaymentauthorizationconfigid());
++            detail.setPaymentAuthPercentage(paymentTokenById.getTripPaymentTokens().get(0).getAuthorizationpercentage());
++            detail.setAuthAmount(paymentTokenById.getTripPaymentTokens().get(0).getAuthorizationamount());
++            detail.setTotalAmount(paymentTokenById.getTripPaymentTokens().get(0).getTotalamount());
++            detail.setTripStatusID(reservationResponse.getReservation().get(0).getReservationStatus());
++            detail.setTripStatusCode(reservationResponse.getReservation().get(0).getStatusCode());
++            detail.setStarTime(reservationResponse.getReservation().get(0).getStartTime().toString());
++            detail.setEndTime(reservationResponse.getReservation().get(0).getEndTime().toString());
++            bookResponse = TripModificationDetailDAO.insertTripModificationDetail(logger, blModServices.getDBManager(), detail);
++            GenericReservationResponse bookResponse2;
++            if (String.valueOf(TripStatusEnum.RREQ).equals(getstatus.getActivetripresponse().get(0).getStatusCode()) || String.valueOf(TripStatusEnum.RUP).equals(getstatus.getActivetripresponse().get(0).getStatusCode())) {
++                bookResponse2 = TripStatusDAO.listTripStatusByCode(logger, blModServices.getDBManager(), String.valueOf(TripStatusEnum.RREQ));
++            } else {
++                bookResponse2 = TripStatusDAO.listTripStatusByCode(logger, blModServices.getDBManager(), String.valueOf(TripStatusEnum.RON));
++            }
++            if (bookResponse2.getTripstatus() == null || bookResponse2.getTripstatus().isEmpty()) {
++                bookResponse2.setErrorCode("1");
++                bookResponse2.setErrorMessage("Error Extracting status");
++                return bookResponse2;
++            }
++            Reservationrequest reservationrequest3 = new Reservationrequest();
++            reservationrequest3.setStatusCode(bookResponse2.getTripstatus().get(0).getStatusCode());
++            reservationrequest3.setReservationID(getstatus.getActivetripresponse().get(0).getReservationid());
++            reservationrequest3.setStartTime(reservationResponse.getReservation().get(0).getStartTime());
++            reservationrequest3.setEndTime(new UTF8String(resObject.getEndTime()));
++            reservationrequest3.setReservationStatus(bookResponse2.getTripstatus().get(0).getStatusid());
++            GenericReservationResponse updatedBookResponse = ReservationDAO.updateReservation(logger, blModServices.getDBManager(), reservationrequest3);
++            ActiveTrip activeTrip = new ActiveTrip();
++            activeTrip.setTripid(resObject.getTripId());
++            activeTrip.setTripstatus(bookResponse2.getTripstatus().get(0).getStatusid());
++            activeTrip.setStatusCode(bookResponse2.getTripstatus().get(0).getStatusCode());
++            BookingResponse updatedActiveTrip = ActiveCrudDAO.updateActiveTrip(logger, blModServices.getDBManager(), activeTrip);
++            bookResponse.setReserverList(updatedBookResponse.getReservation());
++            bookResponse.setActiveTrips(updatedActiveTrip.getActiveTrips());
++        } catch (Exception e) {
++            GenericReservationResponse genericresponse = new GenericReservationResponse();
++            genericresponse.setErrorCode("1");
++            genericresponse.setErrorMessage("Error in Payment Capture Request");
++            return genericresponse;
++        }
++        return bookResponse;
++    }
++
++    @BEndpoint(uri = BookingDefs.Endpoints.CREATE_TRIP_PAYMENT_MODIFICATION_REDUCTION, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = TripModificationDetail.class)
++    public BaseResponse createTripModificationReduction(BLogger logger, BLModServices blModServices, RequestContext reqCtx,
++                                                        TripModificationDetail resObject) throws BExceptions {
++        BookingResponse bookResponse = new BookingResponse();
++        try {
++            Reservationrequest reservationrequest = new Reservationrequest();
++            reservationrequest.setUserId(resObject.getTripId());
++            reservationrequest.setFromValue("tripid");
++            BookingResponse getstatus = ActiveCrudDAO.getByTripResponse(logger, blModServices.getDBManager(), reservationrequest, new ArrayList<ActiveTripResponse>());
++            if (getstatus.getErrorCode().equals("1") || getstatus.getActivetripresponse() == null || getstatus.getActivetripresponse().isEmpty()) {
++                bookResponse.setErrorCode("1");
++                bookResponse.setErrorCode("Trip does not exist");
++                return bookResponse;
++            }
++            if (!(String.valueOf(TripStatusEnum.RREQ).equals(getstatus.getActivetripresponse().get(0).getStatusCode()) || String.valueOf(TripStatusEnum.RUP).equals(getstatus.getActivetripresponse().get(0).getStatusCode()) || String.valueOf(TripStatusEnum.RON).equals(getstatus.getActivetripresponse().get(0).getStatusCode()))) {
++                bookResponse.setErrorCode("1");
++                bookResponse.setErrorCode("Trip Modification not allowed");
++                return bookResponse;
++            }
++            RservationRequestbyId requestbyId = new RservationRequestbyId();
++            requestbyId.setReservationId(getstatus.getActivetripresponse().get(0).getReservationid());
++            GenericReservationResponse reservationResponse = ReservationDAO.getresponsebyid(logger, blModServices.getDBManager(), requestbyId);
++            if (reservationResponse.getErrorCode().equals("1") || reservationResponse.getReservation() == null || reservationResponse.getReservation().isEmpty()) {
++                bookResponse.setErrorCode("1");
++                bookResponse.setErrorCode("reservation does not exist");
++                return bookResponse;
++            }
++            Reservationrequest reservationrequest1 = new Reservationrequest();
++            reservationrequest1.setId(resObject.getTripId());
++            reservationrequest1.setFromValue("tripid");
++            BookingResponse paymentTokenById = PaymentTokenDAO.getTripPaymentTokenById(logger, blModServices.getDBManager(), reservationrequest1);
++            if (paymentTokenById.getErrorCode().equals("1") || paymentTokenById.getTripPaymentTokens().isEmpty()) {
++                bookResponse.setErrorCode("1");
++                bookResponse.setErrorMessage(" Trip Payment Token does not exist");
++                return bookResponse;
++            }
++            Reservationrequest reservationrequest2 = new Reservationrequest();
++            reservationrequest2.setFromValue("code");
++            reservationrequest2.setStatusCode(String.valueOf(ModificationTypeCode.TMR));
++            BookingResponse tripModificationType = TripModificationTypeDAO.getTripModificationType(logger, blModServices.getDBManager(), reservationrequest2);
++            if (tripModificationType.getErrorCode().equals("1") || tripModificationType.getTripModificationTypes().isEmpty()) {
++                bookResponse.setErrorCode("1");
++                bookResponse.setErrorMessage(" Trip Modification Type does not exist");
++                return bookResponse;
++            }
++            TripModificationDetail detail = new TripModificationDetail();
++            detail.setTripId(resObject.getTripId());
++            detail.setReservationId(getstatus.getActivetripresponse().get(0).getReservationid());
++            detail.setUserId(reservationResponse.getReservation().get(0).getUserId());
++            detail.setVehicleID(reservationResponse.getReservation().get(0).getVehicleid());
++            detail.setTripPaymentTokenID(paymentTokenById.getTripPaymentTokens().get(0).getId());
++            detail.setHostID(reservationResponse.getReservation().get(0).getHostid());
++            detail.setChannelID(reservationResponse.getReservation().get(0).getChannelid());
++            detail.setModificationTypeCodeID(tripModificationType.getTripModificationTypes().get(0).getId());
++            detail.setModificationTypeCode(tripModificationType.getTripModificationTypes().get(0).getCode());
++            detail.setTotalDays(paymentTokenById.getTripPaymentTokens().get(0).getTotaldays());
++            detail.setAmountPerDays(paymentTokenById.getTripPaymentTokens().get(0).getPerdayamount());
++            detail.setTripAmount(paymentTokenById.getTripPaymentTokens().get(0).getTripAmount());
++            detail.setTripAuthConfigID(paymentTokenById.getTripPaymentTokens().get(0).getPaymentauthorizationconfigid());
++            detail.setPaymentAuthPercentage(paymentTokenById.getTripPaymentTokens().get(0).getAuthorizationpercentage());
++            detail.setAuthAmount(paymentTokenById.getTripPaymentTokens().get(0).getAuthorizationamount());
++            detail.setTotalAmount(paymentTokenById.getTripPaymentTokens().get(0).getTotalamount());
++            detail.setTripStatusID(reservationResponse.getReservation().get(0).getReservationStatus());
++            detail.setTripStatusCode(reservationResponse.getReservation().get(0).getStatusCode());
++            detail.setStarTime(reservationResponse.getReservation().get(0).getStartTime().toString());
++            detail.setEndTime(reservationResponse.getReservation().get(0).getEndTime().toString());
++            bookResponse = TripModificationDetailDAO.insertTripModificationDetail(logger, blModServices.getDBManager(), detail);
++            GenericReservationResponse bookResponse2;
++            bookResponse2 = TripStatusDAO.listTripStatusByCode(logger, blModServices.getDBManager(), reservationResponse.getReservation().get(0).getStatusCode());
++            if (bookResponse2.getTripstatus() == null || bookResponse2.getTripstatus().isEmpty()) {
++                bookResponse2.setErrorCode("1");
++                bookResponse2.setErrorMessage("Error Extracting status");
++                return bookResponse2;
++            }
++            Reservationrequest reservationrequest3 = new Reservationrequest();
++            reservationrequest3.setStatusCode(bookResponse2.getTripstatus().get(0).getStatusCode());
++            reservationrequest3.setReservationID(getstatus.getActivetripresponse().get(0).getReservationid());
++            reservationrequest3.setStartTime(new UTF8String(resObject.getStarTime()));
++            reservationrequest3.setEndTime(new UTF8String(resObject.getEndTime()));
++            reservationrequest3.setReservationStatus(bookResponse2.getTripstatus().get(0).getStatusid());
++            GenericReservationResponse updatedBookResponse = ReservationDAO.updateReservation(logger, blModServices.getDBManager(), reservationrequest3);
++            ActiveTrip activeTrip = new ActiveTrip();
++            activeTrip.setTripid(resObject.getTripId());
++            activeTrip.setTripstatus(bookResponse2.getTripstatus().get(0).getStatusid());
++            activeTrip.setStatusCode(bookResponse2.getTripstatus().get(0).getStatusCode());
++            BookingResponse updatedActiveTrip = ActiveCrudDAO.updateActiveTrip(logger, blModServices.getDBManager(), activeTrip);
++            bookResponse.setReserverList(updatedBookResponse.getReservation());
++            bookResponse.setActiveTrips(updatedActiveTrip.getActiveTrips());
++        } catch (Exception e) {
++            GenericReservationResponse genericresponse = new GenericReservationResponse();
++            genericresponse.setErrorCode("1");
++            genericresponse.setErrorMessage("Error in Payment Capture Request");
++            return genericresponse;
++        }
+         return bookResponse;
+-
+     }
+ 
+     @Override
+Index: services/booking-service/src/main/java/com/bundee/booking/pojo/TripPaymentToken.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/booking-service/src/main/java/com/bundee/booking/pojo/TripPaymentToken.java b/services/booking-service/src/main/java/com/bundee/booking/pojo/TripPaymentToken.java
+--- a/services/booking-service/src/main/java/com/bundee/booking/pojo/TripPaymentToken.java	(revision 8f51ee853ab04f5bd4a1aaa4363f66d5ba98f171)
++++ b/services/booking-service/src/main/java/com/bundee/booking/pojo/TripPaymentToken.java	(date 1694520948420)
+@@ -26,6 +26,15 @@
+     private String paymentmethodidtoken;
+     private String customertoken;
+     private String setupIntentToken;
++    private double tripAmount;
++
++    public void setTripAmount(double tripAmount) {
++        this.tripAmount = tripAmount;
++    }
++
++    public double getTripAmount() {
++        return tripAmount;
++    }
+ 
+     public String getSetupIntentToken() {
+         return setupIntentToken;
+@@ -139,7 +148,7 @@
+         this.authorizationpercentage = authorizationpercentage;
+     }
+ 
+-    public int getTotaldays() {
++    public double getTotaldays() {
+         return totaldays;
+     }
+ 
+@@ -227,4 +236,5 @@
+         this.customertoken = customertoken;
+     }
+ 
++
+ }
+Index: services/booking-service/src/main/java/com/bundee/booking/db/TripModificationDetailDAO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/booking-service/src/main/java/com/bundee/booking/db/TripModificationDetailDAO.java b/services/booking-service/src/main/java/com/bundee/booking/db/TripModificationDetailDAO.java
+--- a/services/booking-service/src/main/java/com/bundee/booking/db/TripModificationDetailDAO.java	(revision 8f51ee853ab04f5bd4a1aaa4363f66d5ba98f171)
++++ b/services/booking-service/src/main/java/com/bundee/booking/db/TripModificationDetailDAO.java	(date 1694520948441)
+@@ -5,6 +5,7 @@
+ import com.bundee.msfw.interfaces.logi.*;
+ 
+ import java.sql.*;
++import java.text.*;
+ 
+ public class TripModificationDetailDAO {
+     private static final String SELECT_TRIP_MODIFICATION_DETAIL_BY_ID = "select * from tripmodificationdetail  WHERE id=?";
+@@ -19,6 +20,7 @@
+     private static final String SELECT_TRIP_MODIFICATION_DETAIL_BY_MODIFICATION_TYPE_CODE = "select * from tripmodificationdetail  WHERE modificationtypecode=?";
+     private static final String SELECT_TRIP_MODIFICATION_DETAIL_BY_TRIP_STATUS_ID = "select * from tripmodificationdetail  WHERE tripstatusid=?";
+     private static final String SELECT_TRIP_MODIFICATION_DETAIL = "select * from tripmodificationdetail";
++    private static final String INSERT_TRIP_MODIFICATION_DETAIL = "INSERT INTO tripmodificationdetail( tripid, reservationid, userid, vehicleid, trippaymenttokenid, hostid, channelid, modificationtypecode, modificationtypecodeid, totaldays, amountperdays, tripamount, tripauthconfigid, paymentauthpercentage, authamount, totalamount, tripstatusid, tripstatuscode,starttime,endtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+ 
+     public static BookingResponse getTripModificationDetail(BLogger logger, DBManager dbm,
+                                                           Reservationrequest resObject) throws DBException {
+@@ -102,7 +104,59 @@
+             return bookingResponse;
+         }
+     }
+-
++    public static BookingResponse insertTripModificationDetail(BLogger logger, DBManager dbm, TripModificationDetail resobj) throws DBException {
++        BookingResponse bookResponse = new BookingResponse();
++        try {
++            if (resobj == null || resobj.getTripId() == 0 || resobj.getReservationId() == 0 || resobj.getUserId() == 0 || resobj.getVehicleID() == 0 || resobj.getTripPaymentTokenID() == 0 || resobj.getHostID() == 0 || resobj.getChannelID() == 0 || resobj.getModificationTypeCode() == null || resobj.getModificationTypeCodeID() == 0 || resobj.getTotalDays() == null || resobj.getAmountPerDays() == null || resobj.getTripAmount() == null || resobj.getPaymentAuthPercentage() == null || resobj.getAuthAmount() == null || resobj.getTotalAmount() == null || resobj.getTripAuthConfigID() == 0 || resobj.getTripStatusID() == 0 || resobj.getTripStatusCode() == null||resobj.getEndTime()==null||resobj.getStarTime()==null)
++            {bookResponse.setErrorCode("1");
++                bookResponse.setErrorMessage("Error in Trip Modification Request");
++                return bookResponse;
++            } else {
++                java.util.Date startDate = new SimpleDateFormat("yyyy-MM-dd").parse(resobj.getStarTime().toString());
++                java.util.Date endDate = new SimpleDateFormat("yyyy-MM-dd").parse(resobj.getEndTime().toString());
++                java.sql.Date sqlStartDate = new java.sql.Date(startDate.getTime());
++                java.sql.Date sqlendDate = new java.sql.Date(endDate.getTime());
++                java.sql.Timestamp timestampStartDate = new java.sql.Timestamp(sqlStartDate.getTime());
++                java.sql.Timestamp timestampEndDate = new java.sql.Timestamp(sqlendDate.getTime());
++                DBQueryBuilder dbQB = dbm.getDBQueryBuilder();
++                DBQuery sq = dbQB.setBatch().setQueryString(INSERT_TRIP_MODIFICATION_DETAIL).setBindInputFunction((dbLogger, ps) -> {
++                    ps.setInt(1, resobj.getTripId());
++                    ps.setInt(2, resobj.getReservationId());
++                    ps.setInt(3, resobj.getUserId());
++                    ps.setInt(4, resobj.getVehicleID());
++                    ps.setInt(5, resobj.getTripPaymentTokenID());
++                    ps.setInt(6, resobj.getHostID());
++                    ps.setInt(7, resobj.getChannelID());
++                    ps.setString(8, resobj.getModificationTypeCode());
++                    ps.setInt(9, resobj.getModificationTypeCodeID());
++                    ps.setDouble(10, resobj.getTotalDays());
++                    ps.setDouble(11, resobj.getAmountPerDays());
++                    ps.setDouble(12, resobj.getTripAmount());
++                    ps.setInt(13, resobj.getTripAuthConfigID());
++                    ps.setDouble(14, resobj.getPaymentAuthPercentage());
++                    ps.setDouble(15, resobj.getAuthAmount());
++                    ps.setDouble(16, resobj.getTotalAmount());
++                    ps.setInt(17, resobj.getTripStatusID());
++                    ps.setString(18, resobj.getTripStatusCode());
++                    ps.setTimestamp(19, timestampStartDate);
++                    ps.setTimestamp(20, timestampEndDate);
++                    ps.addBatch();
++                }).setReturnKeys().setFetchDataFunction((dbFlogger, rs) -> {
++                    bookResponse.getTripModificationDetails().add(createResponse(dbFlogger, rs));
++                }).logQuery(true).build();
++                dbm.update(logger, sq);
++                bookResponse.setErrorCode("0");
++                bookResponse.setErrorMessage("Successfully Trip Modification Completed");
++                return bookResponse;
++            }
++        } catch (DBException e) {
++            bookResponse.setErrorCode("1");
++            bookResponse.setErrorMessage("Error in Exception " + e.getMessage());
++            return bookResponse;
++        } catch (ParseException e) {
++            throw new RuntimeException(e);
++        }
++    }
+     public static TripModificationDetail createResponse(BLogger logger, ResultSet rs) throws SQLException {
+         TripModificationDetail resobj = new TripModificationDetail();
+         resobj.setId(rs.getInt("id"));
+@@ -127,6 +181,8 @@
+         resobj.setActive(rs.getBoolean("isactive"));
+         resobj.setCreatedDate(rs.getString("createddate"));
+         resobj.setUpdatedDate(rs.getString("updateddate"));
++        resobj.setStarTime(rs.getString("starttime"));
++        resobj.setEndTime(rs.getString("endtime"));
+         return resobj;
+     }
+ }
+Index: services/booking-service/src/main/java/com/bundee/booking/pojo/RservationRequestbyId.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/booking-service/src/main/java/com/bundee/booking/pojo/RservationRequestbyId.java b/services/booking-service/src/main/java/com/bundee/booking/pojo/RservationRequestbyId.java
+--- a/services/booking-service/src/main/java/com/bundee/booking/pojo/RservationRequestbyId.java	(revision 8f51ee853ab04f5bd4a1aaa4363f66d5ba98f171)
++++ b/services/booking-service/src/main/java/com/bundee/booking/pojo/RservationRequestbyId.java	(date 1694603486046)
+@@ -5,6 +5,7 @@
+ public class RservationRequestbyId {
+ 
+ 	private int vehicleid;
++	private int vehicleIdCompleted;
+ 	private int userId;
+ 	private int reservationId;
+ 	private int tripid;
+@@ -16,6 +17,14 @@
+ 	private float openingkm;
+ 	private float closingkm;
+ 
++	public int getVehicleIdCompleted() {
++		return vehicleIdCompleted;
++	}
++
++	public void setVehicleIdCompleted(int vehicleIdCompleted) {
++		this.vehicleIdCompleted = vehicleIdCompleted;
++	}
++
+ 	public int getHostID() {
+ 		return hostID;
+ 	}
+Index: services/availability-service/src/main/java/com/bundee/availability/utils/VehiclePageHandler.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/availability-service/src/main/java/com/bundee/availability/utils/VehiclePageHandler.java b/services/availability-service/src/main/java/com/bundee/availability/utils/VehiclePageHandler.java
+--- a/services/availability-service/src/main/java/com/bundee/availability/utils/VehiclePageHandler.java	(revision 8f51ee853ab04f5bd4a1aaa4363f66d5ba98f171)
++++ b/services/availability-service/src/main/java/com/bundee/availability/utils/VehiclePageHandler.java	(date 1694591366269)
+@@ -40,7 +40,6 @@
+         RootZipcode vList = new RootZipcode();
+ 
+         try {
+-            List<VehicleDetails> vehicles = new ArrayList<VehicleDetails>();
+             FeatureDBConcurrentTask featureDBConcurrentTask = new FeatureDBConcurrentTask(blModServices.getDBManager(),
+                     ids4Page, vList);
+             VehicleDetailDBConcurrentTask vehicleDetailDBConcurrentTask = new VehicleDetailDBConcurrentTask(blModServices.getDBManager(),
+@@ -57,7 +56,7 @@
+             RootZipcode vehicleImage = vehicleImageDBConcurrentTask.getvList();
+             List<VehicleDetails> vehicleAllDetails = new ArrayList<VehicleDetails>();
+             if (userID != 0) {
+-                customerWishList = AvailabilityServiceimpl.getCustomWishList(String.valueOf(userID));
++                customerWishList = AvailabilityServiceimpl.getCustomWishList(userID);
+             }
+             if (!vList.getVehicledetails().isEmpty()) {
+                 for (int i = 0; i < vList.getVehicledetails().size(); i++) {
+Index: services/availability-service/src/main/java/com/bundee/availability/blmodule/AvailabilityModule.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/availability-service/src/main/java/com/bundee/availability/blmodule/AvailabilityModule.java b/services/availability-service/src/main/java/com/bundee/availability/blmodule/AvailabilityModule.java
+--- a/services/availability-service/src/main/java/com/bundee/availability/blmodule/AvailabilityModule.java	(revision 8f51ee853ab04f5bd4a1aaa4363f66d5ba98f171)
++++ b/services/availability-service/src/main/java/com/bundee/availability/blmodule/AvailabilityModule.java	(date 1694603279692)
+@@ -35,6 +35,121 @@
+ import java.util.stream.Collectors;
+ 
+ public class AvailabilityModule implements BLModule {
++    public static VehicleDetails getfeaturedata(List<VehicleFeatures> featureList, VehicleDetails vehicledata,
++                                                List<MasterVehicleImageResponse> imageresponse, RootZipcode customerWishList) {
++        for (int i = 0; i < featureList.size(); i++) {
++            if (featureList.get(i).getfeaturename().trim().equals("Bed Type")) {
++                vehicledata.setBedtype(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("trip count")) {
++                vehicledata.setBodyclass(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Body Class")) {
++                vehicledata.setBodyclass(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Bus Floor Configuration Type")) {
++                vehicledata.setBusfloortype(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Bus Type")) {
++                vehicledata.setBustype(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Cab Type")) {
++                vehicledata.setCabtype(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Custom Motorcycle Type")) {
++                vehicledata.setCustommotortype(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Doors")) {
++                vehicledata.setDoors(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Drive Type")) {
++                vehicledata.setDrivetype(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Electrification Level")) {
++                vehicledata.setWlectrificationlevel(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Engine Brake (hp) From")) {
++                vehicledata.setEnginebrake(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Engine Power (kW)")) {
++                vehicledata.setEnginepower(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Front Air Bag Locations")) {
++                vehicledata.setFrontairbaglocation(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Fuel Type - Primary")) {
++                vehicledata.setFueltypeprimary(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Manufacturer Name")) {
++                vehicledata.setManufacturename(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Motorcycle Chassis Type")) {
++                vehicledata.setMotorcyclechasistype(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Motorcycle Suspension Type")) {
++                vehicledata.setMotorcyclesuspensiontype(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Other Engine Info")) {
++                vehicledata.setOthetengineinfo(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Other Restraint System Info")) {
++                vehicledata.setOtherRestraintSystemInfo(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Plant City")) {
++                vehicledata.setPlantCity(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Plant Company Name")) {
++                vehicledata.setPlantCompanyName(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Plant Country")) {
++                vehicledata.setPlantCountry(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Plant State")) {
++                vehicledata.setPlantstate(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Seat Belt Type")) {
++                vehicledata.setSeatbelttype(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Side Air Bag Locations")) {
++                vehicledata.setSideAirBagLocations(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Steering Location")) {
++                vehicledata.setSteeringLocation(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim()
++                    .equals("Tire Pressure Monitoring System (TPMS) Type")) {
++                vehicledata.setTirePressure(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Trailer Body Type")) {
++                vehicledata.setTrailerBodyType(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Trailer Type Connection")) {
++                vehicledata.setTrailerTypeConnection(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Trim")) {
++                vehicledata.setTrim(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Turbo")) {
++                vehicledata.setTurbo(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Vehicle Type")) {
++                vehicledata.setVehicleType(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Vehicle Description")) {
++                vehicledata.setVehicleDescription(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Seating Capacity")) {
++                vehicledata.setSeatingCapacity(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Insurance Header")) {
++                vehicledata.setInsuranceHeader(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Insurance Header Type")) {
++                vehicledata.setInsuranceHeaderType(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Insurance Details1")) {
++                vehicledata.setInsuranceDetails2(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Insurance Details2")) {
++                vehicledata.setInsuranceDetails2(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Insurance Details3")) {
++                vehicledata.setInsuranceDetails3(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Parking Details")) {
++                vehicledata.setParkingDetails(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Guidelines")) {
++                vehicledata.setGuideLines(featureList.get(i).getfeaturedescription().toString());
++            } else if (featureList.get(i).getfeaturename().trim().equals("Cancellation Policy")) {
++                vehicledata.setPolicies(featureList.get(i).getfeaturedescription().toString());
++            }
++        }
++        int vehicleId = vehicledata.getId();
++        if (imageresponse.size() != 0) {
++            List<MasterVehicleImageResponse> vehicleImageData = imageresponse.stream()
++                    .filter(item -> item.getVehicleid() == vehicleId).collect(Collectors.toList());
++            vehicledata.setImageresponse(vehicleImageData);
++        } else {
++            List<MasterVehicleImageResponse> vehicleImageData = new ArrayList<MasterVehicleImageResponse>();
++            vehicledata.setImageresponse(vehicleImageData);
++        }
++        if (customerWishList != null) {
++            if (customerWishList.getCustomwishlist().size() != 0) {
++                List<CustomerWishlistResponse> wishListData = customerWishList.getCustomwishlist().stream()
++                        .filter(item -> item.getVehicleid() == vehicleId).collect(Collectors.toList());
++                if (wishListData.size() == 0) {
++                    vehicledata.setWishList(false);
++                } else {
++                    vehicledata.setWishList(true);
++                }
++            }
++        }
++        List<TripReview> tripReview = new ArrayList<TripReview>();
++        vehicledata.setTripreview(tripReview);
++        return vehicledata;
++    }
++
+     @Override
+     public void init(BLogger logger, BLModServices blModServices) throws BExceptions {
+     }
+@@ -97,7 +212,7 @@
+         cte.execute(logger, ctasks);
+         RootZipcode customerWishList = new RootZipcode();
+         if (sp.getUserId() != 0) {
+-            customerWishList = AvailabilityServiceimpl.getCustomWishList(String.valueOf(sp.getUserId()));
++            customerWishList = AvailabilityServiceimpl.getCustomWishList(sp.getUserId());
+         }
+         List<Integer> getVehicleList = vList.getVehicledetails().stream().map(e -> e.getId()).distinct()
+                 .collect(Collectors.toList());
+@@ -151,112 +266,86 @@
+         return vList;
+     }
+ 
+-    @BEndpoint(uri = AvailabilityDefs.Endpoints.SEARCH_BY_ZIP_PAGE, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = RequestParam.class,pageHandlerClass = VehiclePageHandler.class)
+-    public BaseResponse SerachByZipPage(BLogger logger, BLModServices blModServices, RequestContext reqCtx, RequestParam sp,VehiclePageHandler vehiclePageHandler) {
+-        RootZipcode vList=new RootZipcode();
++    @BEndpoint(uri = AvailabilityDefs.Endpoints.SEARCH_BY_ZIP_PAGE, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = RequestParam.class, pageHandlerClass = VehiclePageHandler.class)
++    public BaseResponse SerachByZipPage(BLogger logger, BLModServices blModServices, RequestContext reqCtx, RequestParam sp, VehiclePageHandler vehiclePageHandler) {
++        RootZipcode vList = new RootZipcode();
+         try {
+-        vehiclePageHandler.listVehicleFeatureByID(logger,blModServices,sp);
+-    } catch (BExceptions e) {
+-        vList.setErrorMessage("Error with the details given");
+-        vList.setErrorCode("1");
+-        return vList;
+-    }
+-		return null;
++            vehiclePageHandler.listVehicleFeatureByID(logger, blModServices, sp);
++        } catch (BExceptions e) {
++            vList.setErrorMessage("Error with the details given");
++            vList.setErrorCode("1");
++            return vList;
++        }
++        return null;
+     }
+ 
+-    public static VehicleDetails getfeaturedata(List<VehicleFeatures> featureList, VehicleDetails vehicledata,
+-                                                List<MasterVehicleImageResponse> imageresponse, RootZipcode customerWishList) {
+-        for (int i = 0; i < featureList.size(); i++) {
+-            if (featureList.get(i).getfeaturename().trim().equals("Bed Type")) {
+-                vehicledata.setBedtype(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("trip count")) {
+-                vehicledata.setBodyclass(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Body Class")) {
+-                vehicledata.setBodyclass(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Bus Floor Configuration Type")) {
+-                vehicledata.setBusfloortype(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Bus Type")) {
+-                vehicledata.setBustype(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Cab Type")) {
+-                vehicledata.setCabtype(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Custom Motorcycle Type")) {
+-                vehicledata.setCustommotortype(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Doors")) {
+-                vehicledata.setDoors(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Drive Type")) {
+-                vehicledata.setDrivetype(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Electrification Level")) {
+-                vehicledata.setWlectrificationlevel(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Engine Brake (hp) From")) {
+-                vehicledata.setEnginebrake(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Engine Power (kW)")) {
+-                vehicledata.setEnginepower(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Front Air Bag Locations")) {
+-                vehicledata.setFrontairbaglocation(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Fuel Type - Primary")) {
+-                vehicledata.setFueltypeprimary(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Manufacturer Name")) {
+-                vehicledata.setManufacturename(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Motorcycle Chassis Type")) {
+-                vehicledata.setMotorcyclechasistype(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Motorcycle Suspension Type")) {
+-                vehicledata.setMotorcyclesuspensiontype(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Other Engine Info")) {
+-                vehicledata.setOthetengineinfo(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Other Restraint System Info")) {
+-                vehicledata.setOtherRestraintSystemInfo(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Plant City")) {
+-                vehicledata.setPlantCity(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Plant Company Name")) {
+-                vehicledata.setPlantCompanyName(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Plant Country")) {
+-                vehicledata.setPlantCountry(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Plant State")) {
+-                vehicledata.setPlantstate(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Seat Belt Type")) {
+-                vehicledata.setSeatbelttype(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Side Air Bag Locations")) {
+-                vehicledata.setSideAirBagLocations(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Steering Location")) {
+-                vehicledata.setSteeringLocation(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim()
+-                    .equals("Tire Pressure Monitoring System (TPMS) Type")) {
+-                vehicledata.setTirePressure(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Trailer Body Type")) {
+-                vehicledata.setTrailerBodyType(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Trailer Type Connection")) {
+-                vehicledata.setTrailerTypeConnection(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Trim")) {
+-                vehicledata.setTrim(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Turbo")) {
+-                vehicledata.setTurbo(featureList.get(i).getfeaturedescription().toString());
+-            } else if (featureList.get(i).getfeaturename().trim().equals("Vehicle Type")) {
+-                vehicledata.setVehicleType(featureList.get(i).getfeaturedescription().toString());
+-            }
+-        }
+-        int vehicleId = vehicledata.getId();
+-        if (imageresponse.size() != 0) {
+-            List<MasterVehicleImageResponse> vehicleImageData = imageresponse.stream()
+-                    .filter(item -> item.getVehicleid() == vehicleId).collect(Collectors.toList());
+-            vehicledata.setImageresponse(vehicleImageData);
+-        } else {
+-            List<MasterVehicleImageResponse> vehicleImageData = new ArrayList<MasterVehicleImageResponse>();
+-            vehicledata.setImageresponse(vehicleImageData);
+-        }
+-        if (customerWishList != null) {
+-            if (customerWishList.getCustomwishlist().size() != 0) {
+-                List<CustomerWishlistResponse> wishListData = customerWishList.getCustomwishlist().stream()
+-                        .filter(item -> item.getVehicleid() == vehicleId).collect(Collectors.toList());
+-                if (wishListData.size() == 0) {
+-                    vehicledata.setWishList(false);
+-                } else {
+-                    vehicledata.setWishList(true);
++    @BEndpoint(uri = AvailabilityDefs.Endpoints.SEARCH_BY_ZIPCODE, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = RequestParam.class)
++    public BaseResponse SerachByZipCode(BLogger logger, BLModServices blModServices, RequestContext reqCtx, RequestParam sp) {
++        RootZipcode vList = new RootZipcode();
++        try {
++            List<Long> vehicleIDs = new ArrayList<Long>();
++            AvailabilityDAO.getvehiclesAvailable(logger, blModServices, sp, vehicleIDs);
++            try {
++                FeatureDBConcurrentTask featureDBConcurrentTask = new FeatureDBConcurrentTask(blModServices.getDBManager(),
++                        vehicleIDs, vList);
++                VehicleDetailDBConcurrentTask vehicleDetailDBConcurrentTask = new VehicleDetailDBConcurrentTask(blModServices.getDBManager(),
++                        vehicleIDs, vList);
++                VehicleImageDBConcurrentTask vehicleImageDBConcurrentTask = new VehicleImageDBConcurrentTask(blModServices.getDBManager(),
++                        vehicleIDs, vList);
++                VehicleReviewDBConcurrentTask vehicleReviewDBConcurrentTask = new VehicleReviewDBConcurrentTask(blModServices.getDBManager(),
++                        vehicleIDs, vList);
++                List<ConcurrentTask> ctasks = new ArrayList<ConcurrentTask>();
++                ctasks.add(featureDBConcurrentTask);
++                ctasks.add(vehicleDetailDBConcurrentTask);
++                ctasks.add(vehicleImageDBConcurrentTask);
++                ctasks.add(vehicleReviewDBConcurrentTask);
++                ConcurrentTaskExecutor cte = blModServices.getUtilFactory().getConcurrentTaskExecutor();
++                cte.execute(logger, ctasks);
++                RootZipcode customerWishList = new RootZipcode();
++                RootZipcode vehicleImage = vehicleImageDBConcurrentTask.getvList();
++                RootZipcode vehicleRating = vehicleReviewDBConcurrentTask.getvList();
++                List<VehicleDetails> vehicleAllDetails = new ArrayList<VehicleDetails>();
++                if (sp.getUserId() != 0) {
++                    customerWishList = AvailabilityServiceimpl.getCustomWishList(sp.getUserId());
++                }
++                if (!vList.getVehicledetails().isEmpty()) {
++                    for (int i = 0; i < vList.getVehicledetails().size(); i++) {
++                        int vehicleId = vList.getVehicledetails().get(i).getId();
++                        List<VehicleFeatures> featureList = vList.getFeaturelist().stream()
++                                .filter(p -> p.getVehicleid() == vehicleId).collect(Collectors.toList());
++                        VehicleDetails vh = AvailabilityModule.getfeaturedata(featureList, vList.getVehicledetails().get(i),
++                                vehicleImage.getImageresponse(), customerWishList);
++                        vehicleAllDetails.add(vh);
++                    }
++                    for (int j = 0; j < vehicleIDs.size(); j++) {
++                        int vehicleId = Math.toIntExact(vehicleIDs.get(j));
++                        List<VehicleDetails> str3 = vehicleAllDetails.stream().filter(item -> item.getId() == vehicleId)
++                                .toList();
++                        if (!str3.isEmpty()) {
++                            List<Reservation> str4 = vList.getReserverList().stream().filter(item -> item.getVehicleid() == vehicleId)
++                                    .toList();
++                            if (!str4.isEmpty()) {
++                                str3.get(0).setTripcount(vehicleRating.getReserverList().get(0).getTripcount());
++                                str3.get(0).setRating(vehicleRating.getReserverList().get(0).getRating());
++                            }
++                        }
++                    }
+                 }
++                vList.setFeaturelist(null);
++                vList.setPrice(null);
++                vList.setVehicledetails(null);
++                vList.setVehicleAllDetails(vehicleAllDetails);
++                return vList;
++            } catch (Exception | BExceptions e) {
++                vList.setErrorCode("1");
++                vList.setErrorMessage("Error in ActiveTripRequest Request " + e.getMessage());
++                return vList;
+             }
++        } catch (BExceptions e) {
++            vList.setErrorMessage("Error with the details given");
++            vList.setErrorCode("1");
++            return vList;
+         }
+-        List<TripReview> tripReview = new ArrayList<TripReview>();
+-        vehicledata.setTripreview(tripReview);
+-        return vehicledata;
+     }
+ 
+     /// Abhishek
+@@ -271,7 +360,7 @@
+                 vList.getVehicledetails());
+         RootZipcode customerWishList = new RootZipcode();
+         if (requestObject.getUserId() != 0) {
+-            customerWishList = AvailabilityServiceimpl.getCustomWishList(String.valueOf(requestObject.getUserId()));
++            customerWishList = AvailabilityServiceimpl.getCustomWishList(requestObject.getUserId());
+         }
+         List<Integer> getVehicleList = vList.getVehicledetails().stream().map(e -> e.getId()).distinct()
+                 .collect(Collectors.toList());
+Index: services/booking-service/src/main/java/com/bundee/booking/defs/BookingDefs.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/booking-service/src/main/java/com/bundee/booking/defs/BookingDefs.java b/services/booking-service/src/main/java/com/bundee/booking/defs/BookingDefs.java
+--- a/services/booking-service/src/main/java/com/bundee/booking/defs/BookingDefs.java	(revision 8f51ee853ab04f5bd4a1aaa4363f66d5ba98f171)
++++ b/services/booking-service/src/main/java/com/bundee/booking/defs/BookingDefs.java	(date 1694520101536)
+@@ -141,14 +141,18 @@
+ 
+ 		public static final String GET_AUTHORIZATION_BY_HOSTID_VEHICLEID="api/v1/authorizationper/calculateper";
+ 
+-		public static final String CREATE_TRIP_PAYEMENT_MODIFICATION = "api/v1/paymentCapture/createPaymentModification";
++		public static final String CREATE_TRIP_PAYEMENT_MODIFICATION = "api/v1/paymentCapture/createTripModification";
+ 
+-		public static final String UPDATE_TRIP_PAYEMENT_MODIFICATION = "api/v1/paymentCapture/updatePaymentModification";
++		public static final String UPDATE_TRIP_PAYEMENT_MODIFICATION = "api/v1/paymentCapture/updateTripModification";
+ 
+-		public static final String GET_TRIP_PAYEMENT_MODIFICATION = "api/v1/paymentCapture/getPaymentModification";
++		public static final String GET_TRIP_PAYEMENT_MODIFICATION = "api/v1/paymentCapture/getTripModification";
+ 
+-		public static final String GET_ALL_TRIP_PAYEMENT_MODIFICATION = "api/v1/paymentCapture/getAllPaymentModification";
++		public static final String GET_ALL_TRIP_PAYEMENT_MODIFICATION = "api/v1/paymentCapture/getAllTripModification";
+ 
++		public static final String CREATE_TRIP_PAYMENT_MODIFICATION_EXTENSION = "api/v1/paymentCapture/createTripModificationExtension";
++		public static final String CREATE_TRIP_PAYMENT_MODIFICATION_REDUCTION = "api/v1/paymentCapture/createTripModificationReduction";
++		public static final String GET_ALL_TRIP_PAYEMENT_MODIFICATION_DETAIL = "api/v1/paymentCapture/getAllTripModificationDetail";
++		public static final String GET_TRIP_PAYEMENT_MODIFICATION_DETAIL = "api/v1/paymentCapture/getTripModificationDetail";
+ 
+ 
+ 
+Index: services/availability-service/src/main/java/AvailabilityService/AvailabilityServiceimpl.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/availability-service/src/main/java/AvailabilityService/AvailabilityServiceimpl.java b/services/availability-service/src/main/java/AvailabilityService/AvailabilityServiceimpl.java
+--- a/services/availability-service/src/main/java/AvailabilityService/AvailabilityServiceimpl.java	(revision 8f51ee853ab04f5bd4a1aaa4363f66d5ba98f171)
++++ b/services/availability-service/src/main/java/AvailabilityService/AvailabilityServiceimpl.java	(date 1694603769539)
+@@ -33,9 +33,9 @@
+ 		try {
+ 			RestTemplate restTemplate = new RestTemplate();
+ 			String checkBookingUrl = "http://4.240.86.202:8002/api/v1/resrevation/getresponsebyvehicleid";
+-
+ 			JSONObject jsonObject = new JSONObject();
+-			jsonObject.put("vehicleid", vehicleId);
++
++			jsonObject.put("vehicleIdCompleted", vehicleId);
+ 
+ 			String jsonString = jsonObject.toString();
+ 			HttpHeaders headers = new HttpHeaders();
+@@ -154,13 +154,14 @@
+ 		}
+ 
+ 	}
+-	public static RootZipcode getCustomWishList(String userid) {
++	public static RootZipcode getCustomWishList(int userid) {
+ 		RootZipcode bookingResponse = new RootZipcode();
+ 		try {
+ 			RestTemplate restTemplate = new RestTemplate();
+-			String checkBookingUrl = "http://4.240.86.202:8004/api/v1/customerwishlist/byiuserid";
++			String checkBookingUrl = "http://4.240.86.202:8004/api/v1/customerwishlist/byid";
+ 			JSONObject jsonObject = new JSONObject();
+-			jsonObject.put("fromvalue", userid);
++			jsonObject.put("fromvalue", "userid");
++			jsonObject.put("id", userid);
+ 			String jsonString = jsonObject.toString();
+ 			HttpHeaders headers = new HttpHeaders();
+ 			headers.setContentType(MediaType.APPLICATION_JSON);
+@@ -226,6 +227,29 @@
+ 			imageResponses.addAll(bookingObjResponse.getImageresponse());
+ 		} catch (Exception e) {
+ 			e.printStackTrace();
++		}
++	}
++	public static void getVehicleReviewByID(List<Long> vehicleid, List<Reservation> reservationDetail) {
++		try {
++			RestTemplate restTemplate = new RestTemplate();
++			String checkBookingUrl = "http://4.240.86.202:8002/api/v1/booking/getvehiclereviewdetail";
++			JSONObject jsonObject = new JSONObject();
++			String vehicleids = vehicleid.stream()
++					.map(Object::toString)
++					.collect(Collectors.joining(","));
++			jsonObject.put("fromValue", vehicleids);
++			String jsonString = jsonObject.toString();
++			HttpHeaders headers = new HttpHeaders();
++			headers.setContentType(MediaType.APPLICATION_JSON);
++			HttpEntity<String> entity = new HttpEntity<String>(jsonString, headers);
++			ResponseEntity<String> resultBookingList = restTemplate.exchange(checkBookingUrl, HttpMethod.POST, entity,
++					String.class);
++			String responseBookingBody = resultBookingList.getBody();
++			Gson gson = new Gson();
++			RootZipcode bookingObjResponse = gson.fromJson(responseBookingBody, RootZipcode.class);
++			reservationDetail.addAll(bookingObjResponse.getReserverList());
++		} catch (Exception e) {
++			e.printStackTrace();
+ 		}
+ 	}
+ 	public static RootZipcode getTripReview(String vehicleid) {
+Index: services/booking-service/src/main/java/com/bundee/booking/utils/ModificationTypeCode.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/booking-service/src/main/java/com/bundee/booking/utils/ModificationTypeCode.java b/services/booking-service/src/main/java/com/bundee/booking/utils/ModificationTypeCode.java
+new file mode 100644
+--- /dev/null	(date 1694520948429)
++++ b/services/booking-service/src/main/java/com/bundee/booking/utils/ModificationTypeCode.java	(date 1694520948429)
+@@ -0,0 +1,5 @@
++package com.bundee.booking.utils;
++
++public enum ModificationTypeCode {
++    TME,TMR
++}
+\ No newline at end of file
+Index: services/booking-service/src/main/java/com/bundee/booking/pojo/TripReview.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/booking-service/src/main/java/com/bundee/booking/pojo/TripReview.java b/services/booking-service/src/main/java/com/bundee/booking/pojo/TripReview.java
+--- a/services/booking-service/src/main/java/com/bundee/booking/pojo/TripReview.java	(revision 8f51ee853ab04f5bd4a1aaa4363f66d5ba98f171)
++++ b/services/booking-service/src/main/java/com/bundee/booking/pojo/TripReview.java	(date 1694600755247)
+@@ -11,11 +11,20 @@
+ 	private int userid;
+ 	private int rating;
+ 	private int tripid;
++	private double avg;
+ 	private String comments;
+ 	private String createddate;
+ 	private String updateddate;
+ 	private Boolean isactive;
+-	
++
++	public double getAvg() {
++		return avg;
++	}
++
++	public void setAvg(double avg) {
++		this.avg = avg;
++	}
++
+ 	public int getReviewid() {
+ 		return reviewid;
+ 	}
+Index: services/booking-service/src/main/java/com/bundee/booking/pojo/BookingResponse.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/booking-service/src/main/java/com/bundee/booking/pojo/BookingResponse.java b/services/booking-service/src/main/java/com/bundee/booking/pojo/BookingResponse.java
+--- a/services/booking-service/src/main/java/com/bundee/booking/pojo/BookingResponse.java	(revision 8f51ee853ab04f5bd4a1aaa4363f66d5ba98f171)
++++ b/services/booking-service/src/main/java/com/bundee/booking/pojo/BookingResponse.java	(date 1694520101545)
+@@ -38,7 +38,6 @@
+     List<TripModificationType>tripModificationTypes;
+     List<TripModificationDetail>tripModificationDetails;
+ 
+-    List<AuthorisationPerResponse> authorisationPerResponses;
+     List<TrippaymentcategorymappingResponse> trippaymentcategorymappingResponses;
+     List<TripModificationResponse> tripModificationResponses;
+     private String errorCode;
+Index: services/availability-service/src/main/java/com/bundee/availability/blmodule/VehicleReviewDBConcurrentTask.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/availability-service/src/main/java/com/bundee/availability/blmodule/VehicleReviewDBConcurrentTask.java b/services/availability-service/src/main/java/com/bundee/availability/blmodule/VehicleReviewDBConcurrentTask.java
+new file mode 100644
+--- /dev/null	(date 1694591074080)
++++ b/services/availability-service/src/main/java/com/bundee/availability/blmodule/VehicleReviewDBConcurrentTask.java	(date 1694591074080)
+@@ -0,0 +1,34 @@
++package com.bundee.availability.blmodule;
++
++import AvailabilityService.*;
++import com.bundee.availability.pojo.*;
++import com.bundee.msfw.interfaces.dbi.*;
++import com.bundee.msfw.interfaces.logi.*;
++import com.bundee.msfw.interfaces.utili.concurrent.*;
++
++import java.util.*;
++
++public class VehicleReviewDBConcurrentTask implements ConcurrentTask {
++
++	DBManager dbm;
++	List<Long> vehicleIDs;
++	RootZipcode vList;
++
++	public VehicleReviewDBConcurrentTask(DBManager dbm, List<Long> vehicleIDs, RootZipcode vList) {
++		this.dbm = dbm;
++		this.vehicleIDs = vehicleIDs;
++		this.vList = vList;
++	}
++	public RootZipcode getvList() {
++		return vList;
++	}
++	@Override
++	public String getUniqueTaskID() {
++		return this.getClass().getSimpleName();
++	}
++
++	@Override
++	public void runConcurrent(BLogger logger) {
++		AvailabilityServiceimpl.getVehicleReviewByID(vehicleIDs, vList.getReserverList());
++	}
++}

@@ -1,0 +1,221 @@
+{
+	"info": {
+		"_postman_id": "b45a8f1d-ffff-4e28-b411-a3874e8d53e1",
+		"name": "BundeeAPIKeyManagementAPIs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "CreateAPIKey",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"apiKeyName\": \"bundee external2\",\r\n    \"validityTS\": 2556124190,\r\n    \"isActive\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:6443/api/v1/apikey/create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6443",
+					"path": [
+						"api",
+						"v1",
+						"apikey",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AssignRoleToAPIKey",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"apiKeyID\": 1,\r\n    \"roleMapping\":[\r\n        {\r\n            \"roleID\": 1002,\r\n            \"isActive\": false\r\n        },\r\n        {\r\n            \"roleID\": 1001,\r\n            \"isActive\": true\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:6443/api/v1/apikey/roles/assign",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6443",
+					"path": [
+						"api",
+						"v1",
+						"apikey",
+						"roles",
+						"assign"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DisableAPIKey",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"apiKeyID\": 5\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:6443/api/v1/apikey/disable",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6443",
+					"path": [
+						"api",
+						"v1",
+						"apikey",
+						"disable"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "EnableAPIKey",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"apiKeyID\": 5\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:6443/api/v1/apikey/enable",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6443",
+					"path": [
+						"api",
+						"v1",
+						"apikey",
+						"enable"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ListAllAPIKeys",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "bundee_auth_token",
+						"value": "5bccc62301ac7c7c0c2f43bc62e078d5efef4769f94a51834db22a1adee0786220bd9bf7af51c02ba7dd34bca4e6a4c7",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"authToken\": \"eyJhbGciOiJSUzI1NiIsImtpZCI6IjE5MGFkMTE4YTk0MGFkYzlmMmY1Mzc2YjM1MjkyZmVkZThjMmQwZWUiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiUmFrIiwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL2J1bmRlZS1kZXYiLCJhdWQiOiJidW5kZWUtZGV2IiwiYXV0aF90aW1lIjoxNjk0NzY1MjU0LCJ1c2VyX2lkIjoiaEV2ZDhkTU5mQk9kRWtlYkpITWwzdXNkU1JpMSIsInN1YiI6ImhFdmQ4ZE1OZkJPZEVrZWJKSE1sM3VzZFNSaTEiLCJpYXQiOjE2OTQ3NjUyNTQsImV4cCI6MTY5NDc2ODg1NCwiZW1haWwiOiJyYWtzaGl0aEBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsicmFrc2hpdGhAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.BuGP80DYLgXiJi8UTtwqklirxKYY_gjKKMItEQjAxCiqLSG1m99v6R9fCjGt0RnyqWjE7WGQwfEwaW5FJJnV1tKa-ebqoAGhCsfkqO1Oa_lCz1ncLVYxykegZbuNl-F7JPGZvarLIip0p97oiV5zraE26uwFq-HI4PMF_GDYUZGxGkVGYYd1jYlpzI1CuRHD1tTingM5wwoAUZVrTXQZRoIakH_wcKH0IW77N9rfj1r_JLQYCyRIwIsRIGdSBpKxOJGR0NGsx1k1xR-F-sXfowzyieiqa4_iYZiZxkh5i4LC9FrPkprflhCcGODDQpATQGZgd4lvuTI_NhnCHltUGQ\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:6443/api/v1/apikey/list",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6443",
+					"path": [
+						"api",
+						"v1",
+						"apikey",
+						"list"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GenerateAPIKeyToken",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "bundee_auth_token",
+						"value": "39fb37d4c3ab0b6bc8134cbc7555fe15c152f722cf7354bcf16cd9a1855031cf36ea225f007f68683858c5190e2ac619",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"authToken\": \"eyJhbGciOiJSUzI1NiIsImtpZCI6IjE5MGFkMTE4YTk0MGFkYzlmMmY1Mzc2YjM1MjkyZmVkZThjMmQwZWUiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiUmFrIiwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL2J1bmRlZS1kZXYiLCJhdWQiOiJidW5kZWUtZGV2IiwiYXV0aF90aW1lIjoxNjk0NzY1MjU0LCJ1c2VyX2lkIjoiaEV2ZDhkTU5mQk9kRWtlYkpITWwzdXNkU1JpMSIsInN1YiI6ImhFdmQ4ZE1OZkJPZEVrZWJKSE1sM3VzZFNSaTEiLCJpYXQiOjE2OTQ3NjUyNTQsImV4cCI6MTY5NDc2ODg1NCwiZW1haWwiOiJyYWtzaGl0aEBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsicmFrc2hpdGhAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.BuGP80DYLgXiJi8UTtwqklirxKYY_gjKKMItEQjAxCiqLSG1m99v6R9fCjGt0RnyqWjE7WGQwfEwaW5FJJnV1tKa-ebqoAGhCsfkqO1Oa_lCz1ncLVYxykegZbuNl-F7JPGZvarLIip0p97oiV5zraE26uwFq-HI4PMF_GDYUZGxGkVGYYd1jYlpzI1CuRHD1tTingM5wwoAUZVrTXQZRoIakH_wcKH0IW77N9rfj1r_JLQYCyRIwIsRIGdSBpKxOJGR0NGsx1k1xR-F-sXfowzyieiqa4_iYZiZxkh5i4LC9FrPkprflhCcGODDQpATQGZgd4lvuTI_NhnCHltUGQ\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:6443/api/v1/apikey/token/gen?apiKeyID=1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6443",
+					"path": [
+						"api",
+						"v1",
+						"apikey",
+						"token",
+						"gen"
+					],
+					"query": [
+						{
+							"key": "apiKeyID",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

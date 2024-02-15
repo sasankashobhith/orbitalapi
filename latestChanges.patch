@@ -1,0 +1,723 @@
+Subject: [PATCH] latestChanges
+---
+Index: services/host-vehicle-service/src/main/java/com/bundee/hvs/db/CustomerWishListDAO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/host-vehicle-service/src/main/java/com/bundee/hvs/db/CustomerWishListDAO.java b/services/host-vehicle-service/src/main/java/com/bundee/hvs/db/CustomerWishListDAO.java
+--- a/services/host-vehicle-service/src/main/java/com/bundee/hvs/db/CustomerWishListDAO.java	(revision 3faeb485706b497629c1712bf3a5b250674cc834)
++++ b/services/host-vehicle-service/src/main/java/com/bundee/hvs/db/CustomerWishListDAO.java	(date 1694671415480)
+@@ -21,7 +21,7 @@
+     private static final String INSERT_INTO_CUSTOMER_WISHLIST = "insert into customerwishlist (userid,vehicleid,isfavourite) values (?,?,?)";
+     private static final String UPDATE_CUSTOMERWISHLIST = "UPDATE customerwishlist SET updateddate=?,isactive=? WHERE userid=? AND vehicleid=?";
+     private static final String SOFT_UPDATE_CUSTOMERWISHLIST = "UPDATE customerwishlist SET  isactive=?, updateddate=? WHERE userid=? ";
+-    private static final String GET_CUSTOMERWISHLIST_HOSTVEHICLE = "select b.*,a.isfavourite,a.vehicleid,a.userid from customerwishlist a inner join mastervehicle b on a.vehicleid=b.id where a.userid=?";
++    private static final String GET_CUSTOMERWISHLIST_HOSTVEHICLE = "select b.*,a.isfavourite,a.vehicleid,a.userid,a.isactive as favorite from customerwishlist a inner join mastervehicle b on a.vehicleid=b.id where a.userid=?";
+     private static final String GET_ALL_CUSTOMERWISHLIST = "select * from customerwishlist where isactive=true";
+     private static final String GET_CUSTOMER_WISHLIST_BYID = "SELECT * FROM customerwishlist WHERE id=? and isactive=true";
+     private static final String GET_CUSTOMER_WISHLIST_BY_USERID = "SELECT * FROM customerwishlist WHERE userid=? and isactive=true";
+@@ -270,7 +270,7 @@
+         customeractivity.setBranchid(rs.getInt("branchid"));
+         customeractivity.setVnumber(rs.getString("vnumber"));
+         customeractivity.setVcolor(rs.getString("vcolor"));
+-        customeractivity.setIsactive(rs.getBoolean("isactive"));
++        customeractivity.setIsactive(rs.getBoolean("favorite"));
+         customeractivity.setCrtd_ts(rs.getString("crtd_ts"));
+         customeractivity.setIsfavourite(rs.getBoolean("isfavourite"));
+         return customeractivity;
+Index: services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/VehicleFeatureModule.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/VehicleFeatureModule.java b/services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/VehicleFeatureModule.java
+--- a/services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/VehicleFeatureModule.java	(revision 3faeb485706b497629c1712bf3a5b250674cc834)
++++ b/services/host-vehicle-service/src/main/java/com/bundee/hvs/blmodule/VehicleFeatureModule.java	(date 1694671776566)
+@@ -396,7 +396,7 @@
+     }
+ 
+ 
+-    @BEndpoint(uri = HVDefs.Endpoints.INSERT_ALL_FEATURES, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = VehicleFeature.class)
++    @BEndpoint(uri = HVDefs.Endpoints.INSERT_ALL_FEATURES, httpMethod = UniversalConstants.POST, permission = "", reqDTOClass = VinFeature.class)
+     public BaseResponse insertAllVehicleFeatures(BLogger logger, BLModServices blModServices, RequestContext reqCtx,
+                                                  VinFeature requestObject) throws BExceptions {
+         VehiclesList vList = new VehiclesList();
+Index: services/booking-service/src/main/java/com/bundee/booking/pojo/RservationRequestbyId.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/booking-service/src/main/java/com/bundee/booking/pojo/RservationRequestbyId.java b/services/booking-service/src/main/java/com/bundee/booking/pojo/RservationRequestbyId.java
+--- a/services/booking-service/src/main/java/com/bundee/booking/pojo/RservationRequestbyId.java	(revision 3faeb485706b497629c1712bf3a5b250674cc834)
++++ b/services/booking-service/src/main/java/com/bundee/booking/pojo/RservationRequestbyId.java	(date 1694678289933)
+@@ -5,7 +5,7 @@
+ public class RservationRequestbyId {
+ 
+ 	private int vehicleid;
+-	private int vehicleIdCompleted;
++	private int vehicleIdApproved;
+ 	private int userId;
+ 	private int reservationId;
+ 	private int tripid;
+@@ -17,12 +17,12 @@
+ 	private float openingkm;
+ 	private float closingkm;
+ 
+-	public int getVehicleIdCompleted() {
+-		return vehicleIdCompleted;
++	public int getVehicleIdApproved() {
++		return vehicleIdApproved;
+ 	}
+ 
+-	public void setVehicleIdCompleted(int vehicleIdCompleted) {
+-		this.vehicleIdCompleted = vehicleIdCompleted;
++	public void setVehicleIdApproved(int vehicleIdApproved) {
++		this.vehicleIdApproved = vehicleIdApproved;
+ 	}
+ 
+ 	private UTF8String paymentCategoryId;
+Index: services/user-management-service/src/main/java/com/bundee/ums/defs/UMSDefs.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/user-management-service/src/main/java/com/bundee/ums/defs/UMSDefs.java b/services/user-management-service/src/main/java/com/bundee/ums/defs/UMSDefs.java
+--- a/services/user-management-service/src/main/java/com/bundee/ums/defs/UMSDefs.java	(revision 3faeb485706b497629c1712bf3a5b250674cc834)
++++ b/services/user-management-service/src/main/java/com/bundee/ums/defs/UMSDefs.java	(date 1694690270935)
+@@ -4,43 +4,37 @@
+ 
+ 	public class Endpoints {
+ 
+-		public static final String CREATE_USERS ="api/v1/user/createuser";
+-		public static final String CHECK_LOGIN="api/v1/user/checklogin";
+-		public static final String COUNT_BY_ID="api/v1/user/countbyuserid";
+-		public static final String COUNT_BY_USERIDS="api/v1/user/getbyUserIds";
+-		public static final String GET_BY_FIREBASE_IDS="api/v1/user/getbyfirebaseids";
+-		public static final String EMAIL_VERIFICATION="api/v1/user/emailverification";
+-		public static final String UPDATE_USER="api/v1/user/update";
+-		public static final String UPDATE_USER_TOKEN="api/v1/user/updatetoken";
+-		public static final String ALL_USERS ="api/v1/user/allusers";
+-		public static final String INSERT_INTO_PUSHNOTIFICATIONS = "api/v1/pushnotifications/insert";
+-		public static final String GET_ALL_PUSHNOTIFICXATIONS = "api/v1/pushnotifications/getAll";
+-		public static final String GET_PUSHNOTIFICATIONS_BY_ID = "api/v1/pushnotifications/byid";
+-		public static final String UPDATE_PUSHNOTIFICATIONS = "api/v1/pushnotifications/update";
+-		public static final String UPDATE_PUSHnOTIFICATION_DEVICETOKEN_BYUSERID = "api/v1/update/pushnotifications/byuserid";
+-		public static final String INSERT_INTO_OWNEREMPLOYEE = "api/v1/owneremployee/insert";
+-
+-		public static final String GET_ALL_OWNEREMPLOYEEMAPPING = "api/v1/owneremployeemapping/getAll";
+-		public static final String GET_OWNEREMPLOYEE_BY_ID = "api/v1/owneremployee/byid";
+-		public static final String UPDATE_OWNER_EMPLOYEE = "api/v1/update/owneremployee/byid";
+-		public static final String GET_ALL_MASTER_ROLES="api/v1/masterroles/getallmasterroles";
+-
+-		public static final String GET_MASTER_ROLES_BYID="api/v1/masterroles/masterrolesbyid";
+-		public static final String GET_MASTER_ROLES_BY_NAME="api/v1/masterroles/masterrolesbyname";
+-
+-		public static final String ADD_MASTER_ROLES="api/v1/masterroles/addmasterroles";
+-
+-		public static final String UPDATE_MASTER_ROLES="api/v1/masterroles/updatemasterroles";
+-		public static final String GET_ALL_USER_ROLE_MAPPING="api/v1/userrolemapping/getalluserrolemapping";
++		public static final String CREATE_USERS ="api/v1/user/createUser";
++		public static final String CHECK_LOGIN="api/v1/user/checkLogin";
++		public static final String COUNT_BY_ID="api/v1/user/getUserById";
++		public static final String COUNT_BY_USERIDS="api/v1/user/getUserByUserIds";
++		public static final String GET_BY_FIREBASE_IDS="api/v1/user/getUserByFirebaseId";
++		public static final String EMAIL_VERIFICATION="api/v1/user/getUserByEmail";
++		public static final String UPDATE_USER="api/v1/user/updateUser";
++		public static final String UPDATE_USER_TOKEN="api/v1/user/updateUserCustomerToken";
++		public static final String ALL_USERS ="api/v1/user/getAllUsers";
++		public static final String INSERT_INTO_PUSHNOTIFICATIONS = "api/v1/user/insertPushNotification";
++		public static final String GET_ALL_PUSHNOTIFICXATIONS = "api/v1/user/getAllPushNotification";
++		public static final String GET_PUSHNOTIFICATIONS_BY_ID = "api/v1/user/getPushNotificationById";
++		public static final String UPDATE_PUSHNOTIFICATIONS = "api/v1/user/updatePushNotification";
++		public static final String UPDATE_PUSHnOTIFICATION_DEVICETOKEN_BYUSERID = "api/v1/user/updatePushNotifications";
++		public static final String INSERT_INTO_OWNEREMPLOYEE = "api/v1/user/insertOwnerEmployeeMapping";
++		public static final String GET_ALL_OWNEREMPLOYEEMAPPING = "api/v1/user/getAllOwnerEmployeeMapping";
++		public static final String GET_OWNEREMPLOYEE_BY_ID = "api/v1/user/getOwnerEmployeeMappingById";
++		public static final String UPDATE_OWNER_EMPLOYEE = "api/v1/user/updateOwnerEmployeeMapping";
++		public static final String GET_ALL_MASTER_ROLES="api/v1/user/getAllMasterRoles";
++		public static final String GET_MASTER_ROLES_BYID="api/v1/user/getMasterRoleById";
++		public static final String GET_MASTER_ROLES_BY_NAME="api/v1/user/getMasterRoleByName";
++		public static final String ADD_MASTER_ROLES="api/v1/user/insertMasterRoles";
++		public static final String UPDATE_MASTER_ROLES="api/v1/user/updateMasterRoles";
++		public static final String GET_ALL_USER_ROLE_MAPPING="api/v1/user/getAllUserRoleMapping";
++		public static final String GET_ALL_USER_ROLE_MAPPING_BYID="api/v1/user/userRoleMappingById";
++		public static final String ADD_USER_ROLE_MAPPING="api/v1/user/addUserRoleMapping";
++		public static final String UPDATE_USER_ROLE_MAPPING="api/v1/user/updateUserRoleMapping";
++		public static final String GET_ALL_MOBILECONF="api/v1/user/getAllMobileConfiguration";
++		public static final String GET_ALL_MOBILE_CONF_BY_ID="api/v1/user/getAllConfigurationById";
++		public static final String INSERT_MOBILE_DETAILS="api/v1/user/insertMobileDetails";
++		public static final String UPDATE_MOBILE_DETAILS="api/v1/user/updateMobileDetails";
+ 
+-		public static final String GET_ALL_USER_ROLE_MAPPING_BYID="api/v1/userrolemapping/userrolemappingbyid";
+-
+-		public static final String ADD_USER_ROLE_MAPPING="api/v1/userrolemapping/adduserrolemapping";
+-
+-		public static final String UPDATE_USER_ROLE_MAPPING="api/v1/userrolemapping/updateuserrolemapping";
+-		public static final String GET_ALL_MOBILECONF="api/v1/mobileconf/getAllConf";
+-		public static final String GET_ALL_MOBILE_CONF_BY_ID="api/v1/mobileconf/getAllConfById";
+-		public static final String INSERT_MOBILE_DETAILS="api/v1/mobileconf/insertMobileDetails";
+-		public static final String UPDATE_MOBILE_DETAILS="api/v1/mobileconf/updateMobileDetails";
+ 	}
+ }
+Index: services/availability-service/src/main/java/com/bundee/availability/utils/VehiclePageHandler.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/availability-service/src/main/java/com/bundee/availability/utils/VehiclePageHandler.java b/services/availability-service/src/main/java/com/bundee/availability/utils/VehiclePageHandler.java
+--- a/services/availability-service/src/main/java/com/bundee/availability/utils/VehiclePageHandler.java	(revision 3faeb485706b497629c1712bf3a5b250674cc834)
++++ b/services/availability-service/src/main/java/com/bundee/availability/utils/VehiclePageHandler.java	(date 1694689730761)
+@@ -1,10 +1,7 @@
+ package com.bundee.availability.utils;
+ 
+ import AvailabilityService.AvailabilityServiceimpl;
+-import com.bundee.availability.blmodule.AvailabilityModule;
+-import com.bundee.availability.blmodule.FeatureDBConcurrentTask;
+-import com.bundee.availability.blmodule.VehicleDetailDBConcurrentTask;
+-import com.bundee.availability.blmodule.VehicleImageDBConcurrentTask;
++import com.bundee.availability.blmodule.*;
+ import com.bundee.availability.db.AvailabilityDAO;
+ import com.bundee.availability.pojo.*;
+ import com.bundee.msfw.defs.BExceptions;
+@@ -41,19 +38,23 @@
+ 
+         try {
+             FeatureDBConcurrentTask featureDBConcurrentTask = new FeatureDBConcurrentTask(blModServices.getDBManager(),
+-                    ids4Page, vList);
++                    vehicleIDs, vList);
+             VehicleDetailDBConcurrentTask vehicleDetailDBConcurrentTask = new VehicleDetailDBConcurrentTask(blModServices.getDBManager(),
+-                    ids4Page, vList);
++                    vehicleIDs, vList);
+             VehicleImageDBConcurrentTask vehicleImageDBConcurrentTask = new VehicleImageDBConcurrentTask(blModServices.getDBManager(),
+-                    ids4Page, vList);
++                    vehicleIDs, vList);
++            VehicleReviewDBConcurrentTask vehicleReviewDBConcurrentTask = new VehicleReviewDBConcurrentTask(blModServices.getDBManager(),
++                    vehicleIDs, vList);
+             List<ConcurrentTask> ctasks = new ArrayList<ConcurrentTask>();
+             ctasks.add(featureDBConcurrentTask);
+             ctasks.add(vehicleDetailDBConcurrentTask);
+             ctasks.add(vehicleImageDBConcurrentTask);
++            ctasks.add(vehicleReviewDBConcurrentTask);
+             ConcurrentTaskExecutor cte = blModServices.getUtilFactory().getConcurrentTaskExecutor();
+             cte.execute(logger, ctasks);
+             RootZipcode customerWishList = new RootZipcode();
+             RootZipcode vehicleImage = vehicleImageDBConcurrentTask.getvList();
++            RootZipcode vehicleRating = vehicleReviewDBConcurrentTask.getvList();
+             List<VehicleDetails> vehicleAllDetails = new ArrayList<VehicleDetails>();
+             if (userID != 0) {
+                 customerWishList = AvailabilityServiceimpl.getCustomWishList(userID);
+@@ -67,16 +68,16 @@
+                             vehicleImage.getImageresponse(), customerWishList);
+                     vehicleAllDetails.add(vh);
+                 }
+-                if (!vList.getReservationresponse().isEmpty()) {
+-                    for (int j = 0; j < vList.getReservationresponse().size(); j++) {
+-                        int vehicleId = vList.getReservationresponse().get(j).getVehicleid();
+-                        List<VehicleDetails> str3 = vehicleAllDetails.stream().filter(item -> item.getId() == vehicleId)
+-                                .toList();
+-                        if (!str3.isEmpty()) {
+-                            vehicleAllDetails.remove(str3.get(0));
+-                            str3.get(0).setTripcount(vList.getReservationresponse().get(j).getTripcount());
+-                            str3.get(0).setRating(vList.getReservationresponse().get(j).getRating());
+-                            vehicleAllDetails.add(str3.get(0));
++                for (Long vehicleID : vehicleIDs) {
++                    int vehicleId = Math.toIntExact(vehicleID);
++                    List<VehicleDetails> str3 = vehicleAllDetails.stream().filter(item -> item.getId() == vehicleId)
++                            .toList();
++                    if (!str3.isEmpty()) {
++                        List<Reservation> str4 = vList.getReserverList().stream().filter(item -> item.getVehicleid() == vehicleId)
++                                .toList();
++                        if (!str4.isEmpty()) {
++                            str3.get(0).setTripcount(vehicleRating.getReserverList().get(0).getTripcount());
++                            str3.get(0).setRating(vehicleRating.getReserverList().get(0).getRating());
+                         }
+                     }
+                 }
+Index: services/availability-service/src/main/java/com/bundee/availability/blmodule/AvailabilityModule.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/availability-service/src/main/java/com/bundee/availability/blmodule/AvailabilityModule.java b/services/availability-service/src/main/java/com/bundee/availability/blmodule/AvailabilityModule.java
+--- a/services/availability-service/src/main/java/com/bundee/availability/blmodule/AvailabilityModule.java	(revision 3faeb485706b497629c1712bf3a5b250674cc834)
++++ b/services/availability-service/src/main/java/com/bundee/availability/blmodule/AvailabilityModule.java	(date 1694689730769)
+@@ -315,8 +315,8 @@
+                                 vehicleImage.getImageresponse(), customerWishList);
+                         vehicleAllDetails.add(vh);
+                     }
+-                    for (int j = 0; j < vehicleIDs.size(); j++) {
+-                        int vehicleId = Math.toIntExact(vehicleIDs.get(j));
++                    for (Long vehicleID : vehicleIDs) {
++                        int vehicleId = Math.toIntExact(vehicleID);
+                         List<VehicleDetails> str3 = vehicleAllDetails.stream().filter(item -> item.getId() == vehicleId)
+                                 .toList();
+                         if (!str3.isEmpty()) {
+Index: services/host-vehicle-service/src/main/java/com/bundee/hvs/defs/HVDefs.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/host-vehicle-service/src/main/java/com/bundee/hvs/defs/HVDefs.java b/services/host-vehicle-service/src/main/java/com/bundee/hvs/defs/HVDefs.java
+--- a/services/host-vehicle-service/src/main/java/com/bundee/hvs/defs/HVDefs.java	(revision 3faeb485706b497629c1712bf3a5b250674cc834)
++++ b/services/host-vehicle-service/src/main/java/com/bundee/hvs/defs/HVDefs.java	(date 1694690143438)
+@@ -2,70 +2,60 @@
+ 
+ public class HVDefs {
+ 
+-	public class Endpoints {
+-		public static final String UPLOAD_VEHICLES = "api/v1/vehicle/upload"; 
+-		public static final String UPLOAD_VINS = "api/v1/vehicle/vin/upload"; 
+-		public static final String LIST_VEHICLES_BY_HOST = "api/v1/vehicle/listbyhost";
+-		public static final String GEN_VINS = "api/v1/vehicle/vin/gen";
+-		public static final String GET_FEATURES_BY_VEHICLE_BY_ID = "api/v1/vehiclefeature/listvehicle";
+-		public static final String GET_FEATURES_BY_VEHICLE_BY_ID_PAGE = "api/v1/vehiclefeature/listvehiclepage";
+-		public static final String GET_FEATURES_BY_ID = "api/v1/vehiclefeature/list";
+-		public static final String GET_ALL_FEATURES = "api/v1/vehiclefeature/listall";
+-		public static final String INSERT_FEATURES = "api/v1/vehiclefeature/insert";
+-		public static final String INSERT_ALL_FEATURES = "api/v1/vehiclefeature/insertallfeatures";
+-		public static final String UPDATE_FEATURES = "api/v1/vehiclefeature/update";
+-
+-		public static final String GET_ZIP = "api/v1/vehiclezip/list/{vehicleID}";
+-		public static final String GET_TYPE = "api/v1/vehicleType/list/{ID}";
+-		public static final String GET_UNAVAILABILITY = "api/v1/vehicleUnavailability/list";
+-		public static final String GET_ALL_UNAVAILABILITY = "api/v1/vehicleUnavailability/listall";
+-		public static final String INSERT_UNAVAILABILITY = "api/v1/vehicleUnavailability/insert";
+-		public static final String UPDATE_UNAVAILABILITY = "api/v1/vehicleUnavailability/update";
+-		public static final String GET_ALL_CUSTOMERWISHLIST_BY_USERID="api/v1/customer/wishlist/byuserid";
+-		public static final String VEHICLE_DETAIL_BY_ID = "api/v1/vehicle/details";
+-		public static final String GET_ALL_VEHICLES = "api/v1/vehicle/allvehicles";
+-		public static final String UPDATE_VEHICLE = "api/v1/vehicle/update";
+-		public static final String VEHICLE_BY_ID = "api/v1/vehicle/byid";
+-		public static final String GET_VEHICLE_MASTER_BY_ID = "api/v1/masterbranch/vehicle/details";
+-		public static final String GET_ALL_MASTER_BRANCH = "api/v1/masterbranch/allbranches";
+-		public static final String GET_MASTER_BRANCH_BY_ID = "api/v1/masterbranch/vehicle";
+-		public static final String INSERT_MASTER_BRANCH = "api/v1/masterbranch/insert";
+-		public static final String UPDATE_MASTER_BRANCH = "api/v1/masterbranch/update";
+-		public static final String INSERT_MASTER_VEHICLE = "api/v1/vehicle/insert";
+-
+-		public static final String INSERT_CUTOMERACTIVITY = "api/v1/customeractivity/insert";
+-		public static final String SOFT_UPDATE_CUTOMERACTIVITY = "api/v1/customeractivity/softupdate";
+-		public static final String UPDATE_CUTOMERACTIVITY = "api/v1/customeractivity/update";
+-		public static final String GET_ALL_CUSTOMERACTIVITY = "api/v1/customeractivity/getall";
+-		public static final String GET_ALL_CUSTOMERACTIVITY_BY = "api/v1/customeractivity/esponsebyid";
+-		public static final String UPDATE_CUSTOMERWISHLIST = "api/v1/customerwishlist/update";
+-		public static final String SOFTUPDATE_CUSTOMERWISHLIST = "api/v1/customerwishlist/softupdate";
+-		public static final String INSERT_CUSTOMERWISHLIST = "api/v1/customerwishlist/insert";
+-		public static final String GET_ALL_CUSTOMERWISHLIST = "api/v1/customerwishlist/getall";
+-		public static final String GET_ALL_CUSTOMERWISHLIST_BYID = "api/v1/customerwishlist/byid";
+-		public static final String INSERT_VINZIPCODE = "api/v1/insert/vinxzipcode";
+-		public static final String GET_ALL_VINZIPCODE = "api/v1/vinzipcode/getall";
+-		public static final String GET_ALL_VINZIPCODE_BY_ID = "api/v1/vinzipcode/byid";
+-		public static final String UPDATE_VINZIPCODE = "api/v1/vinzipcode/update";
+-		public static final String GET_ALL_VEHICLEIMAGE="api/v1/masterbranch/vehicle/getAllImage";
+-
+-		public static final String GET_ALL_INVEHICLEIMAGE="api/v1/masterbranch/vehicle/getAllVehicleImage";
+-
+-		public static final String GET_ALL_BY_IMAGEID="api/v1/masterbranch/vehicle/getAllImageByID";
+-
+-		public static final String INSERT_IMAGE_DETAILS="api/v1/masterbranch/vehicle/insertImageDetails";
+-
+-		public static final String UPDATE_IMAGEDETAILS="api/v1/masterbranch/vehicle/updateImageDetails";
+-
+-		public static final String GET_ALL_VEHICLEPRICE="api/v1/masterbranch/vehicle/getAllVehiclePrice";
+-
+-		public static final String GET_ALL_PRICEBY_ID="api/v1/masterbranch/vehicle/getAllVehiclePriceByID";
+-
+-		public static final String INSERT_PRICE_DETAILS="api/v1/masterbranch/vehicle/insertVehiclePriceDetails";
+-
+-		public static final String UPDATE_PRICEDETAILS="api/v1/masterbranch/vehicle/updateVehiclePriceDetails";
+-		public static final String UPLOAD_VEHICLES_FEATUERS = "api/v1/vehicle/uploadVehicleFeatures";
+-
+-		public static final String UPLOAD_VEHICLES_IMAGES = "api/v1/vehicle/uploadVehicleImages";
+-	}
++    public class Endpoints {
++        public static final String UPLOAD_VEHICLES = "api/v1/vehicle/createVehiclesByCsv";
++        public static final String UPLOAD_VINS = "api/v1/vehicle/createVehiclesByVinCsv";
++        public static final String LIST_VEHICLES_BY_HOST = "api/v1/vehicle/getVehiclesByHostId";
++        public static final String GEN_VINS = "api/v1/vehicle/createVehiclesByVin";
++        public static final String GET_FEATURES_BY_VEHICLE_BY_ID = "api/v1/vehicle/getVehicleFeatureByVehicleId";
++        public static final String GET_FEATURES_BY_VEHICLE_BY_ID_PAGE = "api/v1/vehicle/getVehicleFeatureByVehicleIdWithPagination";
++        public static final String GET_FEATURES_BY_ID = "api/v1/vehicle/getVehicleFeatureById";
++        public static final String GET_ALL_FEATURES = "api/v1/vehicle/getAllVehicleFeatureList";
++        public static final String INSERT_FEATURES = "api/v1/vehicle/insertVehicleFeature";
++        public static final String INSERT_ALL_FEATURES = "api/v1/vehicle/insertVehicleFeatures";
++        public static final String UPDATE_FEATURES = "api/v1/vehicle/updateVehicleFeature";
++        public static final String GET_ZIP = "api/v1/vehicle/list/{vehicleID}";
++        public static final String GET_TYPE = "api/v1/vehicle/getVehicleType/{ID}";
++        public static final String GET_UNAVAILABILITY = "api/v1/vehicle/getVehicleUnavailabilityByIds";
++        public static final String GET_ALL_UNAVAILABILITY = "api/v1/vehicle/getAllVehicleUnavailability";
++        public static final String INSERT_UNAVAILABILITY = "api/v1/vehicle/insertVehicleUnavailability";
++        public static final String UPDATE_UNAVAILABILITY = "api/v1/vehicle/updateVehicleUnavailability";
++        public static final String GET_ALL_CUSTOMERWISHLIST_BY_USERID = "api/v1/vehicle/getWishListByUserId";
++        public static final String VEHICLE_DETAIL_BY_ID = "api/v1/vehicle/getVehicleById";
++        public static final String GET_ALL_VEHICLES = "api/v1/vehicle/getAllVehicleList";
++        public static final String UPDATE_VEHICLE = "api/v1/vehicle/updateVehicle";
++        public static final String VEHICLE_BY_ID = "api/v1/vehicle/getVehicleDById";
++        public static final String GET_VEHICLE_MASTER_BY_ID = "api/v1/vehicle/getVehicleBranchDetailsById";
++        public static final String GET_ALL_MASTER_BRANCH = "api/v1/vehicle/getAllBranches";
++        public static final String GET_MASTER_BRANCH_BY_ID = "api/v1/vehicle/getBranchById";
++        public static final String INSERT_MASTER_BRANCH = "api/v1/vehicle/insertBranch";
++        public static final String UPDATE_MASTER_BRANCH = "api/v1/vehicle/updateBranch";
++        public static final String INSERT_MASTER_VEHICLE = "api/v1/vehicle/insertVehicle";
++        public static final String INSERT_CUTOMERACTIVITY = "api/v1/vehicle/insertCustomerActivity";
++        public static final String SOFT_UPDATE_CUTOMERACTIVITY = "api/v1/vehicle/softUpdateCustomerActivity";
++        public static final String UPDATE_CUTOMERACTIVITY = "api/v1/vehicle/updateCustomerActivity";
++        public static final String GET_ALL_CUSTOMERACTIVITY = "api/v1/vehicle/getAllCustomerActivity";
++        public static final String GET_ALL_CUSTOMERACTIVITY_BY = "api/v1/vehicle/getCustomerActivityById";
++        public static final String UPDATE_CUSTOMERWISHLIST = "api/v1/vehicle/updateCustomerWishList";
++        public static final String SOFTUPDATE_CUSTOMERWISHLIST = "api/v1/vehicle/softUpdateCustomerWishList";
++        public static final String INSERT_CUSTOMERWISHLIST = "api/v1/vehicle/insertCustomerWishList";
++        public static final String GET_ALL_CUSTOMERWISHLIST = "api/v1/vehicle/getAllCustomerwishList";
++        public static final String GET_ALL_CUSTOMERWISHLIST_BYID = "api/v1/vehicle/getCustomertWishListById";
++        public static final String INSERT_VINZIPCODE = "api/v1/vehicle/insertVinxZipCode";
++        public static final String GET_ALL_VINZIPCODE = "api/v1/vehicle/getAllVinZipCode";
++        public static final String GET_ALL_VINZIPCODE_BY_ID = "api/v1/vehicle/getVinZipCodeById";
++        public static final String UPDATE_VINZIPCODE = "api/v1/vehicle/updateVinZipCode";
++        public static final String GET_ALL_VEHICLEIMAGE = "api/v1/vehicle/getAllVehicleImage";
++        public static final String GET_ALL_INVEHICLEIMAGE = "api/v1/vehicle/getVehicleImageById";
++        public static final String GET_ALL_BY_IMAGEID = "api/v1/vehicle/vehicle/getImageByID";
++        public static final String INSERT_IMAGE_DETAILS = "api/v1/vehicle/vehicle/insertImageDetails";
++        public static final String UPDATE_IMAGEDETAILS = "api/v1/vehicle/vehicle/updateImageDetails";
++        public static final String GET_ALL_VEHICLEPRICE = "api/v1/vehicle/vehicle/getAllVehiclePrice";
++        public static final String GET_ALL_PRICEBY_ID = "api/v1/vehicle/vehicle/getVehiclePriceByID";
++        public static final String INSERT_PRICE_DETAILS = "api/v1/vehicle/vehicle/insertVehiclePriceDetails";
++        public static final String UPDATE_PRICEDETAILS = "api/v1/vehicle/vehicle/updateVehiclePriceDetails";
++        public static final String UPLOAD_VEHICLES_FEATUERS = "api/v1/vehicle/uploadVehicleFeatures";
++        public static final String UPLOAD_VEHICLES_IMAGES = "api/v1/vehicle/uploadVehicleImages";
++
++    }
+ }
+Index: services/booking-service/src/main/java/com/bundee/booking/defs/BookingDefs.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/booking-service/src/main/java/com/bundee/booking/defs/BookingDefs.java b/services/booking-service/src/main/java/com/bundee/booking/defs/BookingDefs.java
+--- a/services/booking-service/src/main/java/com/bundee/booking/defs/BookingDefs.java	(revision 3faeb485706b497629c1712bf3a5b250674cc834)
++++ b/services/booking-service/src/main/java/com/bundee/booking/defs/BookingDefs.java	(date 1694690270942)
+@@ -1,128 +1,114 @@
+ package com.bundee.booking.defs;
+ 
+ public class BookingDefs {
+-    public class Endpoints {
+-        public static final String VEHICLE_SEARCH = "api/v1/booking/vehicle/search";
++    public class Endpoints {public static final String VEHICLE_SEARCH = "api/v1/booking/vehicle/search";
+         public static final String CREATE_RESERVATION = "api/v1/booking/createReservation";
+-        public static final String CHECK_RESERVATION = "api/v1/booking/checkreservation";
++        public static final String CHECK_RESERVATION = "api/v1/booking/checkReservation";
+         public static final String GETTIMESTAMP_RESERVATION = "api/v1/booking/getByReservationDate";
+-        public static final String GET_VEHICLE_DETAIL = "api/v1/booking/getvehiclereviewdetail";
+-        public static final String RESREVATION_BY_ID = "api/v1/resrevation/getresponsebyvehicleid";
+-        public static final String GET_ALL_RESERAVTION = "api/v1/reservation/getallreservation";
+-        public static final String GETALL_TRIP_STATUS = "api/v1/reservation/getalltripstatus";
+-        public static final String GET_TRIP_REVEIEW_BY_VEHICLEID = "api/v1/tripreview/gettripreviewby/vehicleidIN";
+-        public static final String RESREVATION_BY_USER = "api/v1/resrevation/getresponsebyuser";
++        public static final String GET_VEHICLE_DETAIL = "api/v1/booking/getReviewsnTotTripCountByVehicleId";
++        public static final String RESREVATION_BY_ID = "api/v1/booking/getReservationById";
++        public static final String GET_ALL_RESERAVTION = "api/v1/booking/getAllReservationList";
++        public static final String GETALL_TRIP_STATUS = "api/v1/booking/getAllTripStatus";
++        public static final String GET_TRIP_REVEIEW_BY_VEHICLEID = "api/v1/booking/getAllTripReviewsByVehicleIDs";
++        public static final String RESREVATION_BY_USER = "api/v1/booking/getReservationsByUserID";
+         public static final String UPDATE_RESERVATION_STATUS = "api/v1/booking/updateReservationStatus";
+         public static final String UPDATE_RESERVATION_APPROVAL_STATUS = "api/v1/booking/updateReservationApproval";
+-        public static final String GET_COMMENTS_BY_VEHICLEID = "api/v1/booking/getcommentsbyvehicleid";
+-        public static final String CREATE_PAYMENT = "api/v1/booking/createpayment";
+-        public static final String GET_ALL_PAYMENT = "api/v1/booking/getallpayment/{}";
+-        public static final String GET_BY_ID = "api/v1/booking/getallpaymentBYID";
+-        public static final String UPDATE_PAYMENT = "api/v1/booking/updatepayment";
+-        public static final String CREATE_PAYMENT_AUTH_CATEGORY = "api/v1/payementauth/createpayment";
+-        public static final String GET_ALL_PAYMENT_AUTH_CATEGORY = "api/v1/payementauth/getallpayment/{}";
+-        public static final String GET_BY_ID_PAYMENT_AUTH_CATEGORY = "api/v1/payementauth/getallpaymentBYID";
+-        public static final String UPDATE_PAYMENT_AUTH_CATEGORY = "api/v1/payementauth/updatepayment";
+-        public static final String CREATE_TRIP_PAYMENT = "api/v1/trippayement/createpayment";
+-        public static final String GET_ALL_TRIP_PAYMENT = "api/v1/trippayement/getallpayment/{}";
+-        public static final String GET_BY_TRIP_ID = "api/v1/trippayement/getallpaymentBYID";
+-        public static final String UPDATE_TRIP_PAYMENT = "api/v1/trippayement/updatepayment";
+-        public static final String CREATE_DEDUCTIONCONFIG = "api/v1/deduction/creatededuction";
+-        public static final String GET_ALL_DEDUCTIONCONFIG = "api/v1/deduction/getalldeduction/{}";
+-        public static final String GET_BY_ID_DEDUCTIONCONFIG = "api/v1/deduction/getalldeductionBYID";
+-        public static final String UPDATE_DEDUCTIONCONFIG = "api/v1/deduction/updatededuction";
+-        public static final String CREATE_PAYM_AUTH_CONF = "api/v1/authconfig/createauthconfig";
+-        public static final String GET_ALL_PAYM_AUTH_CONF = "api/v1/authconfig/getallauthconfig/{}";
+-        public static final String GET_BY_ID_PAYM_AUTH_CONF = "api/v1/authconfig/getalldauthconfigBYID";
+-        public static final String UPDATE_PAYM_AUTH_CONF = "api/v1/authconfig/updatedauthconfig";
+-        public static final String CREATE_TRIP_PAYEMENT_CAPTURE = "api/v1/payementcapture/createpayementcapture";
+-        public static final String GET_ALL_TRIP_PAYEMENT_CAPTURE = "api/v1/payementcapture/getallpayementcapture/{}";
+-        public static final String GET_BY_ID_TRIP_PAYEMENT_CAPTURE = "api/v1/payementcapture/getallpayementcaptureBYID";
+-        public static final String UPDATE_TRIP_PAYEMENT_CAPTURE = "api/v1/payementcapture/updatepayementcapture";
+-        public static final String GET_ALL_ACTIVETRIP = "api/v1/booking/getallactivetrip";
+-        public static final String GET_BY_ACTIVETRIP = "api/v1/booking/getbyactivetrip";
+-        public static final String UPDATE_RESERVATION = "api/v1/booking/updateReservation";
++        public static final String GET_COMMENTS_BY_VEHICLEID = "api/v1/booking/getRatingsnCommentsByVehicleId";
++        public static final String CREATE_PAYMENT = "api/v1/booking/createPaymentDetails";
++        public static final String GET_ALL_PAYMENT = "api/v1/booking/getAllPaymentDetails";
++        public static final String GET_BY_ID = "api/v1/booking/getAllPaymentById";
++        public static final String UPDATE_PAYMENT = "api/v1/booking/updatePaymentDetails";
++        public static final String CREATE_PAYMENT_AUTH_CATEGORY = "api/v1/booking/createAuthorizationPayment";
++        public static final String GET_ALL_PAYMENT_AUTH_CATEGORY = "api/v1/booking/getAllAuthorizationPayment";
++        public static final String GET_BY_ID_PAYMENT_AUTH_CATEGORY = "api/v1/booking/getAuthorizationPaymentById";
++        public static final String UPDATE_PAYMENT_AUTH_CATEGORY = "api/v1/booking/updateAuthorizationPayment";
++        public static final String CREATE_TRIP_PAYMENT = "api/v1/booking/createTripPaymentToken";
++        public static final String GET_ALL_TRIP_PAYMENT = "api/v1/booking/getAllTripPaymentToken";
++        public static final String GET_BY_TRIP_ID = "api/v1/booking/getTripPaymentTokenById";
++        public static final String UPDATE_TRIP_PAYMENT = "api/v1/booking/updateTripPaymentToken";
++        public static final String CREATE_DEDUCTIONCONFIG = "api/v1/booking/createDeductionConfig";
++        public static final String GET_ALL_DEDUCTIONCONFIG = "api/v1/booking/getAllDeductionConfig";
++        public static final String GET_BY_ID_DEDUCTIONCONFIG = "api/v1/booking/getDeductionConfigById";
++        public static final String UPDATE_DEDUCTIONCONFIG = "api/v1/booking/updateDeductionConfig";
++        public static final String CREATE_PAYM_AUTH_CONF = "api/v1/booking/createAuthConfig";
++        public static final String GET_ALL_PAYM_AUTH_CONF = "api/v1/booking/getAllAuthConfig";
++        public static final String GET_BY_ID_PAYM_AUTH_CONF = "api/v1/booking/getAuthConfigById";
++        public static final String UPDATE_PAYM_AUTH_CONF = "api/v1/booking/updatedAuthConfig";
++        public static final String CREATE_TRIP_PAYEMENT_CAPTURE = "api/v1/booking/createPaymentCapture";
++        public static final String GET_ALL_TRIP_PAYEMENT_CAPTURE = "api/v1/booking/getAllPaymentCapture";
++        public static final String GET_BY_ID_TRIP_PAYEMENT_CAPTURE = "api/v1/booking/getPaymentCaptureById";
++        public static final String UPDATE_TRIP_PAYEMENT_CAPTURE = "api/v1/booking/updatePaymentCapture";
++        public static final String GET_ALL_ACTIVETRIP = "api/v1/booking/getAllActiveTripList";
++        public static final String GET_BY_ACTIVETRIP = "api/v1/booking/getActiveTripById";
++        public static final String UPDATE_RESERVATION = "api/v1/booking/changeReservationTimeById";
+         public static final String RESERVATION_APPROVED = "api/v1/booking/updateReservation";
+-        public static final String GET_ALL_TRIP_STATUS = "api/v1/status/getallstatus";
+-        public static final String GET_TRIP_STATUS_BYID = "api/v1/status/getstatusbyid";
+-        public static final String GET_TRIP_STATUS_BY_CODE = "api/v1/status/getstatusbycode";
+-        public static final String ADD_TRIP_STATUS = "api/v1/status/addstatus";
+-        public static final String UPDATE_TRIP_STATUS = "api/v1/status/updatetripstatus";
+-        public static final String GET_ALL_BOOKING_STATUS = "api/v1/booking/getallbookingstatus";
+-        public static final String GET_BOOKING_STATUS_BYID = "api/v1/booking/getbookingstatusbyid";
+-        public static final String ADD_BOOKING_STATUS = "api/v1/booking/addbookingstatus";
+-        public static final String UPDATE_BOOKING_STATUS = "api/v1/booking/updatebookingstatus";
+-        public static final String GET_ALL_TRIP_REVIEW = "api/v1/tripreview/getalltripreview";
+-        public static final String GET_TRIP_REVIEW_BYID = "api/v1/tripreview/gettripreviewbyid";
+-        public static final String ADD_TRIP_REVIEW = "api/v1/tripreview/addtripreview";
+-        public static final String UPDATE_TRIP_REVIEW = "api/v1/tripreview/updatetripreview";
+-        public static final String GET_TRIP_CHANNEL_BY_ID = "api/v1/channel/getchannelbyid";
++        public static final String GET_ALL_TRIP_STATUS = "api/v1/booking/getAllStatusList";
++        public static final String GET_TRIP_STATUS_BYID = "api/v1/booking/getStatusById";
++        public static final String GET_TRIP_STATUS_BY_CODE = "api/v1/booking/getStatusByCode";
++        public static final String ADD_TRIP_STATUS = "api/v1/booking/createTripStatus";
++        public static final String UPDATE_TRIP_STATUS = "api/v1/booking/updateTripStatus";
++        public static final String GET_ALL_BOOKING_STATUS = "api/v1/booking/getAllBookingStatusList";
++        public static final String GET_BOOKING_STATUS_BYID = "api/v1/booking/getBookingStatusById";
++        public static final String ADD_BOOKING_STATUS = "api/v1/booking/createBookingStatus";
++        public static final String UPDATE_BOOKING_STATUS = "api/v1/booking/updateBookingStatus";
++        public static final String GET_ALL_TRIP_REVIEW = "api/v1/booking/getAllTripReviewList";
++        public static final String GET_TRIP_REVIEW_BYID = "api/v1/booking/getTripReviewById";
++        public static final String ADD_TRIP_REVIEW = "api/v1/booking/createTripReview";
++        public static final String UPDATE_TRIP_REVIEW = "api/v1/booking/updateTripReview";
++        public static final String GET_TRIP_CHANNEL_BY_ID = "api/v1/booking/getChannelById";
+         public static final String CREATE_CHANNEL = "api/v1/booking/createChannel";
+-        public static final String GET_ALL_CHANNEL = "api/v1/booking/getAllchannel";
+-        public static final String SOFT_UPDATE = "api/v1/booking/softupdate/channel";
+-        public static final String CREATE_STRIPE_CUSTOMER = "api/v1/booking/createstripecustomer";
+-        public static final String DELETE_STRIPE_CUSTOMER = "api/v1/booking/deletestripecustomer";
+-        public static final String CREATE_STRIPE_PAYMENT_CARD_TOKEN = "api/v1/booking/createstriperecord";
+-        public static final String DELETE_STRIPE_PAYMENT_CARD_TOKEN = "api/v1/booking/deletestriperecord";
+-        public static final String GET_STRIPE_PAYMENT_CARD_TOKEN = "api/v1/booking/getstriperecord";
+-        public static final String CREATE_CANCELLATION_RECORD = "api/v1/booking/createcancellationrecord";
+-        public static final String UPDATE_CANCELLATION_RECORD = "api/v1/booking/updatecancellationrecord";
+-        public static final String DELETE_CANCELLATION_RECORD = "api/v1/booking/deletecancellationrecord";
+-        public static final String GET_CANCELLATION_RECORD = "api/v1/booking/getcancellationrecord";
+-        public static final String GET_DEDUCTIONFREQ_CONFIG = "api/v1/dedctionconfig/getdeductionconfigdays";
+-        public static final String GET_ALL_DEDUCTION_CONFIG = "api/v1/deduction/getalldedctionconfig";
+-        public static final String INSERT_DEDUCTIIONCONFIG = "api/v1/insert/deductionconfig";
+-        public static final String INSERT_DEDUCTIONFREQ_DAYS = "api/v1/insert/deductionfreqdays";
+-        public static final String UPDATE_DEDUCTION_FREQ_DAYS = "api/v1/update/deductionfreqdays";
+-        public static final String GET_ALL_DEDUCTION_FREQ_DAYS = "api/v1/getall/deductionfreqdays";
+-        public static final String INSERT_PAYMENT_TRANSACTION = "api/v1/insert/paymenttransaction";
+-        public static final String GET_ALL_PAYMENT_TRANSACTION = "api/v1/getall/paymenttransaction";
+-        public static final String GET_PAYMENT_TRNSACTION_BY_ID = "api/v1/getbyid/paymenttransaction";
+-        public static final String INSERT_TRIP_TOKEN = "api/v1/insert/trippaymenttoken";
+-        public static final String GET_ALL_TRIPPAYMENT_TOKEN = "api/v1/getAll/triptoken";
+-        public static final String GET_TRIP_PAYMENT_BY_ID = "api/v1/getbyid/trippaymenttoken";
+-        public static final String UPDATE_TRIP_PAYMENT_TOKEN = "api/v1/update/trippaymenttoken";
+-        public static final String UPDATE_STRIPE_TOKEN = "api/v1/update/stripepaymenttoken";
+-        public static final String DEDUCTION_CONFIG_BY_ID = "api/v1/deductionconfig/byid";
+-        public static final String DEDUCTION_CONFIG_DAYS_BY_ID = "api/v1/deductiondays/byid";
+-        public static final String CANCEL_ACTIVETRIP_STATUS_HOSTID = "api/v1/update/cancelTripStatusByHostId";
+-        public static final String CANCEL_ACTIVETRIP_STATUS_USERID = "api/v1/update/cancelTripStatusByUserId";
+-        public static final String UPDATE_START_API = "api/v1/update/starttrupstatus";
+-        public static final String COMPLETE_TRIP = "api/v1/update/completedstatus";
+-        public static final String GET_TRIPTOKEN_BY_TRIPID = "api/v1/trippaymenttoken/bytripid";
+-        public static final String GET_AUTHORIZATION_BY_HOSTID_VEHICLEID = "api/v1/authorizationper/calculateper";
+-        public static final String CREATE_TRIP_PAYEMENT_MODIFICATION = "api/v1/paymentCapture/createPaymentModification";
+-        public static final String UPDATE_TRIP_PAYEMENT_MODIFICATION = "api/v1/paymentCapture/updatePaymentModification";
+-        public static final String GET_TRIP_PAYEMENT_MODIFICATION = "api/v1/paymentCapture/getPaymentModification";
+-        public static final String GET_ALL_TRIP_PAYEMENT_MODIFICATION = "api/v1/paymentCapture/getAllPaymentModification";
+-        public static final String INSERT_TRIPSLIP = "api/v1/insert/tripslippayment";
+-        public static final String INSERT_DEDUCTION_EVENT_CONFIGURATION = "api/v1/deductioneventconfiguration/creatededuction";
+-        public static final String GET_ALL_DEDUCTION_EVENT_CONFIGURATION = "api/v1/deductioneventconfiguration/getalldeduction/{}";
+-        public static final String GET_DEDUCTION_EVENT_CONFIGURATION_BY_ID = "api/v1/deductioneventconfiguration/getalldeductionBYID";
+-        public static final String UPDATE_DEDUCTION_EVENT_CONFIGURATION = "api/v1/deductioneventconfiguration/updatededuction";
+-        public static final String CREATE_PAYMENT_AUTHORIZATION_CONFIGURATION = "api/v1/paymentauthorizationconfiguration/createauthorizationconfiguration";
+-        public static final String GET_ALL_PAYMENT_AUTHORIZATION_CONFIGURATION = "api/v1/paymentauthorizationconfiguration/getallauthorizationconfiguration/{}";
+-        public static final String GET_PAYMENT_AUTHORIZATION_CONFIGURATION_BY_ID = "api/v1/paymentauthorizationconfiguration/getallauthorizationconfigurationBYID";
+-        public static final String UPDATE_PAYMENT_AUTHORIZATION_CONFIGURATION = "api/v1/paymentauthorizationconfiguration/updatedauthorizationconfiguration";
+-        public static final String INSERT_DEDUCTIONCONFIGURATION = "api/v1/insert/deductionconfig";
+-        public static final String GET_ALL = "api/v1/getall/tripslippayment";
+-        public static final String GET_TRIPSLIPPAYMENT_BY_ID = "api/v1/TripSlipPayment/byId";
+-
+-
+-		public static final String CREATE_TRIP_PAYMENT_MODIFICATION_EXTENSION = "api/v1/paymentCapture/createTripModificationExtension";
+-		public static final String CREATE_TRIP_PAYMENT_MODIFICATION_REDUCTION = "api/v1/paymentCapture/createTripModificationReduction";
+-		public static final String GET_ALL_TRIP_PAYEMENT_MODIFICATION_DETAIL = "api/v1/paymentCapture/getAllTripModificationDetail";
+-		public static final String GET_TRIP_PAYEMENT_MODIFICATION_DETAIL = "api/v1/paymentCapture/getTripModificationDetail";
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
++        public static final String GET_ALL_CHANNEL = "api/v1/booking/getAllChannel";
++        public static final String SOFT_UPDATE = "api/v1/booking/updateChannel";
++        public static final String CREATE_STRIPE_CUSTOMER = "api/v1/booking/createStripeCustomer";
++        public static final String DELETE_STRIPE_CUSTOMER = "api/v1/booking/deleteStripeCustomer";
++        public static final String CREATE_STRIPE_PAYMENT_CARD_TOKEN = "api/v1/booking/createStripePaymentMethod";
++        public static final String DELETE_STRIPE_PAYMENT_CARD_TOKEN = "api/v1/booking/deleteStripePaymentMethod";
++        public static final String GET_STRIPE_PAYMENT_CARD_TOKEN = "api/v1/booking/getStripePaymentMethodById";
++        public static final String CREATE_CANCELLATION_RECORD = "api/v1/booking/createCancellationCharges";
++        public static final String UPDATE_CANCELLATION_RECORD = "api/v1/booking/updateCancellationCharges";
++        public static final String DELETE_CANCELLATION_RECORD = "api/v1/booking/deleteCancellationCharges";
++        public static final String GET_CANCELLATION_RECORD = "api/v1/booking/getCancellationRecord";
++        public static final String GET_DEDUCTIONFREQ_CONFIG = "api/v1/booking/getDeductionFrequency";
++        public static final String GET_ALL_DEDUCTION_CONFIG = "api/v1/booking/getAllDeductionFrequencyConfiguration";
++        public static final String INSERT_DEDUCTIIONCONFIG = "api/v1/booking/createDeductionConfiguration";
++        public static final String INSERT_DEDUCTIONFREQ_DAYS = "api/v1/booking/createDeductionFrequencyDays";
++        public static final String UPDATE_DEDUCTION_FREQ_DAYS = "api/v1/booking/updateDeductionFrequencyDays";
++        public static final String GET_ALL_DEDUCTION_FREQ_DAYS = "api/v1/booking/getAllDeductionFrequencyDaysList";
++        public static final String INSERT_PAYMENT_TRANSACTION = "api/v1/booking/createPaymentTransaction";
++        public static final String GET_ALL_PAYMENT_TRANSACTION = "api/v1/booking/getAllPaymentTransactionList";
++        public static final String GET_PAYMENT_TRNSACTION_BY_ID = "api/v1/booking/getPaymentTransactionById";
++        public static final String INSERT_TRIP_TOKEN = "api/v1/booking/createTripPaymentToken";
++        public static final String GET_ALL_TRIPPAYMENT_TOKEN = "api/v1/booking/getAllTripTokenList";
++        public static final String GET_TRIP_PAYMENT_BY_ID = "api/v1/booking/getTripPaymentTokenById";
++        public static final String UPDATE_TRIP_PAYMENT_TOKEN = "api/v1/booking/updateTripPaymentToken";
++        public static final String UPDATE_STRIPE_TOKEN = "api/v1/booking/updateStripePaymentTokenId";
++        public static final String DEDUCTION_CONFIG_BY_ID = "api/v1/booking/DeductionConfigurationById";
++        public static final String DEDUCTION_CONFIG_DAYS_BY_ID = "api/v1/booking/DeductionFrequencyDaysById";
++        public static final String CANCEL_ACTIVETRIP_STATUS_HOSTID = "api/v1/booking/updateReservationRejected";
++        public static final String CANCEL_ACTIVETRIP_STATUS_USERID = "api/v1/booking/updateReservationCancelled";
++        public static final String UPDATE_START_API = "api/v1/booking/updateReservationStart";
++        public static final String COMPLETE_TRIP = "api/v1/booking/updateReservationCompleted";
++        public static final String GET_TRIPTOKEN_BY_TRIPID = "api/v1/booking/getTripTokenByTripId";
++        public static final String GET_AUTHORIZATION_BY_HOSTID_VEHICLEID = "api/v1/booking/getAuthorisationAmountByHostAndVehicle";
++        public static final String CREATE_TRIP_PAYEMENT_MODIFICATION = "api/v1/booking/createTripModificationType";
++        public static final String UPDATE_TRIP_PAYEMENT_MODIFICATION = "api/v1/booking/updateTripModificationType";
++        public static final String GET_TRIP_PAYEMENT_MODIFICATION = "api/v1/booking/getTripModificationById";
++        public static final String GET_ALL_TRIP_PAYEMENT_MODIFICATION = "api/v1/booking/getAllTripModificationType";
++        public static final String INSERT_TRIPSLIP = "api/v1/booking/createTripSplitPaymentDetails";
++        public static final String INSERT_DEDUCTION_EVENT_CONFIGURATION = "api/v1/booking/createDeductionEventConfiguration";
++        public static final String GET_ALL_DEDUCTION_EVENT_CONFIGURATION = "api/v1/booking/getAllDeductionEventConfiguration";
++        public static final String GET_DEDUCTION_EVENT_CONFIGURATION_BY_ID = "api/v1/booking/getDeductionEventConfigurationById";
++        public static final String UPDATE_DEDUCTION_EVENT_CONFIGURATION = "api/v1/booking/updateDeductionEventConfiguration";
++        public static final String CREATE_PAYMENT_AUTHORIZATION_CONFIGURATION = "api/v1/booking/createPaymentAuthorizationConfiguration";
++        public static final String GET_ALL_PAYMENT_AUTHORIZATION_CONFIGURATION = "api/v1/booking/getAllPaymentAuthorizationConfiguration";
++        public static final String GET_PAYMENT_AUTHORIZATION_CONFIGURATION_BY_ID = "api/v1/booking/getAllPaymentAuthorizationConfigurationBYID";
++        public static final String UPDATE_PAYMENT_AUTHORIZATION_CONFIGURATION = "api/v1/booking/updatePaymentAuthorizationConfiguration";
++        public static final String INSERT_DEDUCTIONCONFIGURATION = "api/v1/booking/createDeductionConfiguration";
++        public static final String GET_ALL = "api/v1/booking/getAllTripSplitPaymentDetails";
++        public static final String GET_TRIPSLIPPAYMENT_BY_ID = "api/v1/booking/getTripSplitPaymentDetailsById";
++        public static final String CREATE_TRIP_PAYMENT_MODIFICATION_EXTENSION = "api/v1/booking/createTripModificationExtension";
++        public static final String CREATE_TRIP_PAYMENT_MODIFICATION_REDUCTION = "api/v1/booking/createTripModificationReduction";
++        public static final String GET_ALL_TRIP_PAYEMENT_MODIFICATION_DETAIL = "api/v1/booking/getAllTripModificationDetail";
++        public static final String GET_TRIP_PAYEMENT_MODIFICATION_DETAIL = "api/v1/booking/getTripModificationDetailById";
+     }
+-
+ }
+Index: services/booking-service/src/main/java/com/bundee/booking/db/ReservationDAO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/booking-service/src/main/java/com/bundee/booking/db/ReservationDAO.java b/services/booking-service/src/main/java/com/bundee/booking/db/ReservationDAO.java
+--- a/services/booking-service/src/main/java/com/bundee/booking/db/ReservationDAO.java	(revision 3faeb485706b497629c1712bf3a5b250674cc834)
++++ b/services/booking-service/src/main/java/com/bundee/booking/db/ReservationDAO.java	(date 1694678289927)
+@@ -14,25 +14,15 @@
+ import java.text.ParseException;
+ import java.text.SimpleDateFormat;
+ import java.util.ArrayList;
+-import java.util.Arrays;
+ import java.util.Date;
+ import java.util.List;
+ import java.util.stream.*;
+ 
+-import com.bundee.booking.pojo.*;
+-import com.bundee.booking.utils.Util;
+-import com.bundee.msfw.defs.UTF8String;
+-import com.bundee.msfw.interfaces.dbi.DBException;
+-import com.bundee.msfw.interfaces.dbi.DBManager;
+-import com.bundee.msfw.interfaces.dbi.DBQuery;
+-import com.bundee.msfw.interfaces.dbi.DBQueryBuilder;
+-import com.bundee.msfw.interfaces.logi.BLogger;
+-
+ public class ReservationDAO {
+     private static final String INSERT_RESERVATION = "insert into reservation (vehicleid,starttime,endtime,userid,hostid,channelid,reservationstatus,statuscode) values ( ?,?,?,?,?,?,?,?)";
+     private static final String SELECT_TIMESTAMP = "select  v.vehicleid,count(b.vehicleid) as tripcount,avg(b.rating) as rating from reservation v left join tripreviews b on v.reservationid=b.reservationid WHERE  v.statuscode in ('RUP','RON') and (to_char(v.starttime,'yyyy-MM-dd HH:MM:SS') between ? and ?  or to_char(v.endtime,'yyyy-MM-dd HH:MM:SS') between ?  and ?)  and v.isactive=true group by v.vehicleid";
+     private static final String RESERVATION_BY_VehicleID = "select * from  reservation where vehicleid=? and isactive=true";
+-    private static final String RESERVATION_BY_VehicleID_COMPLETED = "select * from  reservation where vehicleid=? and statuscode in ('RUP','RON') and isactive=true";
++    private static final String RESERVATION_BY_VehicleID_APPROVED = "select * from  reservation where vehicleid=? and statuscode in ('RUP','RON') and isactive=true";
+ 
+     private static final String CHECK_RESERVATION = "select  * from reservation WHERE vehicleid IN (&in) and statuscode in ('RUP','RON')  and isactive=true and (to_char(starttime,'yyyy-MM-dd') between ? and ?  or to_char(endtime,'yyyy-MM-dd') between  ? and ?)";
+     private static final String RESERVATION_BY_UsreID = "select * from  reservation where userid=? and isactive=true";
+@@ -49,7 +39,7 @@
+     private static final String GET_BOOKING_STATUS_BY_ID = "select * from bookingstatus where bookingstatus=? and isactive is true";
+     private static final String INSERT_TRIP_STATUS = "insert into activetrip (reservationid,userid,hostid,vehicleid,channelid,tripstatus,statuscode) values (?,?,?,?,?,?,?)";
+     private static final String UPDATE_RESERVATION_STATUS = "UPDATE reservation SET reservationstatus=?,statuscode=?, updtd_ts=? where reservationid=? ";
+-    private static final String UPDATE_RESERVATION_TIME = "UPDATE public.reservation SET updtd_ts=?,  starttime=?, endtime=?, reservationstatus=?, statuscode=? WHERE reservationid=?;";
++    private static final String UPDATE_RESERVATION_TIME = "UPDATE reservation SET updtd_ts=?,  starttime=?, endtime=?, reservationstatus=?, statuscode=? WHERE reservationid=?;";
+ 
+     public static BookingResponse checkReservation(BLogger logger, DBManager dbm, ValidateReservation resobj) {
+         BookingResponse bookResponse = new BookingResponse();
+@@ -388,9 +378,9 @@
+             if (reqObject.getVehicleid() != 0) {
+                 reqObject.setVehicleid(reqObject.getVehicleid());
+                 queryStringReservation = RESERVATION_BY_VehicleID;
+-            }else if (reqObject.getVehicleIdCompleted() != 0) {
+-                reqObject.setVehicleid(reqObject.getVehicleIdCompleted());
+-                queryStringReservation = RESERVATION_BY_VehicleID_COMPLETED;
++            }else if (reqObject.getVehicleIdApproved() != 0) {
++                reqObject.setVehicleid(reqObject.getVehicleIdApproved());
++                queryStringReservation = RESERVATION_BY_VehicleID_APPROVED;
+             } else if (reqObject.getUserId() != 0) {
+                 reqObject.setVehicleid(reqObject.getUserId());
+                 queryStringReservation = RESERVATION_BY_UsreID;
+Index: services/availability-service/src/main/java/com/bundee/availability/defs/AvailabilityDefs.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/services/availability-service/src/main/java/com/bundee/availability/defs/AvailabilityDefs.java b/services/availability-service/src/main/java/com/bundee/availability/defs/AvailabilityDefs.java
+--- a/services/availability-service/src/main/java/com/bundee/availability/defs/AvailabilityDefs.java	(revision 3faeb485706b497629c1712bf3a5b250674cc834)
++++ b/services/availability-service/src/main/java/com/bundee/availability/defs/AvailabilityDefs.java	(date 1694690270929)
+@@ -4,16 +4,16 @@
+ 
+     public class Endpoints {
+ 
+-        public static final String UPLOAD_VEHICLES = "api/v1/vehicle/upload";
+-        public static final String SEARCH_BY_ZIP = "api/v1/vehicle/search/byzip";
+-        public static final String SEARCH_BY_ZIP_PAGE = "api/v1/vehicle/search/byzippage";
+-        public static final String SEARCH_BY_ZIPCODE = "api/v1/vehicle/search/getByZipCode";
+-        public static final String VEHICLE_ZIPCODE = "api/v1/vehicle/zipcode";
+-        public static final String VEHICLE_LIST = "api/v1/vehicle/vehiclelist";
+-        public static final String FEATRESLIST_BY_ID = "api/v1/vehicle/vehiclelistbyid";
+-        public static final String GET_BY_ID = "api/v1/vehicle/checkByVehicleID";
+-        public static final String AVALIABLITY_BY_VEHICLE_ID = "api/v1/vehicle/getByVehicleID";
+-        public static final String VEHICLE_BY_ID = "api/v1/vehicle/details";
+-        public static final String VEHICLE_AVAILABILITY = "api/v1/vehicle/availability";
++        public static final String UPLOAD_VEHICLES = "api/v1/availability/uploadVehiclesByCsv";
++        public static final String SEARCH_BY_ZIP = "api/v1/availability/search/getByZip";
++        public static final String SEARCH_BY_ZIP_PAGE = "api/v1/availability/getByZipCodeWithPagination";
++        public static final String SEARCH_BY_ZIPCODE = "api/v1/availability/getByZipCode";
++        public static final String VEHICLE_ZIPCODE = "api/v1/availability/zipCode";
++        public static final String VEHICLE_LIST = "api/v1/availability/getAllVehicleList";
++        public static final String FEATRESLIST_BY_ID = "api/v1/availability/getVehiclesnFeaturesById";
++        public static final String GET_BY_ID = "api/v1/availability/checkVehicleById";
++        public static final String AVALIABLITY_BY_VEHICLE_ID = "api/v1/availability/getAvailabilityDatesByVehicleId";
++        public static final String VEHICLE_BY_ID = "api/v1/availability/getVehiclesById";
++        public static final String VEHICLE_AVAILABILITY = "api/v1/vehicle/checkAvailability";
+     }
+ }
