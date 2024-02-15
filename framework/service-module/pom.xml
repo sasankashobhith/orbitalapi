@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.bundee.msfw.svcmod</groupId>
+	<artifactId>service-module</artifactId>
+	<name>service-module</name>
+	<packaging>jar</packaging>
+
+	<parent>
+		<groupId>com.bundee.backend.msfw</groupId>
+		<artifactId>msfw</artifactId>
+		<version>${revision}</version>
+	</parent>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.bundee.msfw.interfaces</groupId>
+			<artifactId>interfaces</artifactId>
+			<version>${revision}</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.bundee.msfw.servicefw</groupId>
+			<artifactId>servicefw</artifactId>
+			<version>${revision}</version>
+		</dependency>
+	</dependencies>
+</project>
